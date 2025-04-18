@@ -1,9 +1,9 @@
 "use client"
-
 import Link from 'next/link';
-import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiMenu, FiUser } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
 import SignUpModal from './SignUpModal';
+import SignInModal from './SignInModal';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -12,7 +12,6 @@ export default function Navbar() {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const searchContainerRef = useRef(null);
   const searchInputRef = useRef(null);
-  const modalRef = useRef(null);
 
   // Close expanded search when clicking outside
   useEffect(() => {
@@ -20,19 +19,14 @@ export default function Navbar() {
       if (searchExpanded && searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
         setSearchExpanded(false);
       }
-      if ((showSignInModal || showSignUpModal) && modalRef.current && !modalRef.current.contains(event.target)) {
-        setShowSignInModal(false);
-        setShowSignUpModal(false);
-      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [searchExpanded, showSignInModal, showSignUpModal]);
+  }, [searchExpanded]);
 
   return (
     <>
-      {/* Your Entire Original Navbar - 100% Preserved */}
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -42,11 +36,17 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-2"
               >
-                <FiMenu className="h-6 w-6" />
+                <FiMenu className="h-5 w-5 " />
               </button>
               <Link href="/">
-                <span className="text-xl font-bold text-purple-600 cursor-pointer">
-                  <img src="./logo1.png" width={140} height={140} className='bg-purple-300' />
+                <span className="font-bold text-purple-600 cursor-pointer">
+                  {/* Logo for large screens */}
+                  <span className="hidden lg:block">
+                    <img src="./logo1.png" width={140} height={140} className="bg-purple-300" />
+                  </span>
+
+                  {/* "EZ" text for small and medium screens */}
+                  <span className="block lg:hidden text-xl">EZ</span>
                 </span>
               </Link>
             </div>
@@ -88,7 +88,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-2 ml-2">
               <button
                 onClick={() => setShowSignInModal(true)}
-                className={`hidden md:flex items-center space-x-1 px-3 py-2 rounded-md text-purple-600 hover:bg-purple-50 ${searchExpanded ? 'md:flex' : 'md:flex'}`}
+                className={`hidden md:flex items-center space-x-1 px-3 py-2 rounded-md text-purple-600 hover:bg-purple-50`}
               >
                 <FiUser className="h-5 w-5" />
                 <span>Sign In</span>
@@ -104,7 +104,7 @@ export default function Navbar() {
               )}
 
               <Link href="/cart">
-                <div className={`relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 ${searchExpanded ? 'hidden md:block' : ''}`}>
+                <div className={`relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100`}>
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
                   <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     0
@@ -147,70 +147,17 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Transparent Blur Modal */}
+      {/* Modals */}
       {showSignInModal && (
-        <>
-          {/* Transparent Blur Layer - z-40 */}
-          <div className="fixed inset-0 z-40 backdrop-blur-[2px] bg-white/10"></div>
-
-          {/* Sign In Window - z-50 (above blur) */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              ref={modalRef}
-              className="relative bg-white rounded-lg shadow-xl border border-gray-200 w-full max-w-sm mx-4 p-6"
-            >
-              {/* Close Button (top-right) */}
-              {/* <button
-                onClick={() => setShowSignInModal(false)}
-                className="absolute -top-10 -right-2 p-2 text-white hover:text-gray-200"
-              >
-                <FiX className="h-6 w-6" />
-              </button> */}
-
-              {/* Sign In Content */}
-              <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
-                  <FiUser className="h-6 w-6 text-purple-600" />
-                </div>
-
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Sign in to your account</h3>
-
-                <div className="mt-4 space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Email address"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
-                  />
-                </div>
-
-                <button className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700">
-                  Sign In
-                </button>
-
-                <p className="mt-3 text-sm text-gray-500">
-                  Don't have an account?{' '}
-                  <button
-                    onClick={() => {
-                      setShowSignInModal(false);
-                      setShowSignUpModal(true);
-                    }}
-                    className="text-purple-600 hover:text-purple-500"
-                  >
-                    Sign up
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
-        </>
+        <SignInModal
+          onClose={() => setShowSignInModal(false)}
+          showSignUp={() => {
+            setShowSignInModal(false);
+            setShowSignUpModal(true);
+          }}
+        />
       )}
 
-      {/* Sign Up Modal */}
       {showSignUpModal && (
         <SignUpModal
           onClose={() => setShowSignUpModal(false)}
