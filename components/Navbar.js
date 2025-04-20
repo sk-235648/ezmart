@@ -193,7 +193,7 @@ export default function Navbar() {
                 </button>
 
                 <p className="mt-3 text-sm text-gray-500">
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{' '}
                   <button
                     onClick={() => {
                       setShowSignInModal(false);
