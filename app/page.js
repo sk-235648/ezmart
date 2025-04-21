@@ -1,6 +1,13 @@
+ 
+"use client";
+import Navbar from "@/components/Navbar";
+ 
+
+ 
 import CardList from "@/components/Card";
 import Frontpg from "@/components/Frontpg";
-import Navbar from "@/components/Navbar";
+ 
+ 
  
 
 export default function Home() {
@@ -8,7 +15,12 @@ export default function Home() {
  
     <>
     <Navbar/>
+ 
+     
+ 
     <Frontpg/>
+    
+ 
     <CardList/>
     </>
  
