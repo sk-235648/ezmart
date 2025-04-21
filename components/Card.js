@@ -40,12 +40,12 @@ export default function CardList() {
     }));
 
     return (
-      <div className="p-6">
+      <div className="p-6 ">
         <button
           onClick={handleBack}
-          className="mb-6 px-4 py-2 bg-black text-white rounded-lg"
+          className="mb-6 px-4 py-2 bg-violet-600 text-white rounded-lg"
         >
-          🔙 Go Back
+         &lt;- Go Back
         </button>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
@@ -111,7 +111,7 @@ export default function CardList() {
 
   // Main cards
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6 p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-6 p-6  min-h-screen">
       {products.map((product, index) => (
         <motion.div
           key={index}

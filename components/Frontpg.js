@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Frontpg() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-5 max-w-7xl mx-auto ">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-5 max-w-7xl mx-auto min-h-screen mb-15 ">
       {/* Large promo tile */}
       <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden min-h-[400px] flex items-end bg-cover bg-center hover:scale-105 transition-all duration-300" 
            style={{ backgroundImage: "url('/images/Shoe.jpg')" }}>
