@@ -1,6 +1,6 @@
-// components/ Bigcard.js
+ 
 "use client"
-// components/ Bigcard.js
+ 
 import React, { useState, useEffect } from 'react';
 
 const  Bigcard = () => {
