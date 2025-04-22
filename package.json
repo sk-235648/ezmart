@@ -9,14 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
     "framer-motion": "^12.7.4",
-=======
  
- 
-    "framer-motion": "^12.7.3",
- 
->>>>>>> 9f6ad426e14c65e71cb192d0cd9f9e6d4aff925c
     "next": "15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
