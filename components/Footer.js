@@ -162,6 +162,11 @@ export default function Footer() {
               alt="Apple Pay" 
               className="h-6 object-contain"
             />
+            <img 
+              src="/payment-methods/apple-pay.png" 
+              alt="Apple Pay" 
+              className="h-6 object-contain"
+            />
           </div>
         </div>
       </div>
