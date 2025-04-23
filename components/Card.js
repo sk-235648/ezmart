@@ -5,17 +5,27 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const products = [
   { imageUrl: "/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890" },
-  
-   
+
   { imageUrl: "/card4.png", title: "Home decor", price: "₹899" },
-   
+
   { imageUrl: "/card6.jpg", title: "Gift for her", price: "₹9999" },
-  { imageUrl: "/card7.jpeg", title: "Beautiful Tops For Women.", price: "₹1299" },
-  { imageUrl: "/card8.jpg", title: "Men's Printed Evening Shirts", price: "₹1139" },
-  { imageUrl: "/card9.jpg", title: "Sport Chronograph Men's Watch", price: "₹50000" },
+  {
+    imageUrl: "/card7.jpeg",
+    title: "Beautiful Tops For Women.",
+    price: "₹1299",
+  },
+  {
+    imageUrl: "/card8.jpg",
+    title: "Men's Printed Evening Shirts",
+    price: "₹1139",
+  },
+  {
+    imageUrl: "/card9.jpg",
+    title: "Sport Chronograph Men's Watch",
+    price: "₹50000",
+  },
   { imageUrl: "/card10.jpg", title: "High End Makeup Brands ", price: "₹999" },
   { imageUrl: "/card11.webp", title: "Graim Shoes Men Shoes", price: "₹1949" },
-   
 ];
 
 export default function CardList() {
@@ -45,7 +55,7 @@ export default function CardList() {
           onClick={handleBack}
           className="mb-6 px-4 py-2 bg-violet-600 text-white rounded-lg"
         >
-         &lt;- Go Back
+          &lt;- Go Back
         </button>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
@@ -94,7 +104,9 @@ export default function CardList() {
                   className="rounded-xl object-cover w-full h-[300px]"
                 />
                 <h3 className="text-lg font-bold mt-4">{openImage.title}</h3>
-                <p className="text-gray-600 font-semibold mb-2">{openImage.price}</p>
+                <p className="text-gray-600 font-semibold mb-2">
+                  {openImage.price}
+                </p>
                 <button
                   onClick={() => setOpenImage(null)}
                   className="absolute top-2 right-2 text-black font-bold"
@@ -111,7 +123,7 @@ export default function CardList() {
 
   // Main cards
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen items-center justify-center ml-20 ">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen  ml-20 ">
       {products.map((product, index) => (
         <motion.div
           key={index}
@@ -130,8 +142,12 @@ export default function CardList() {
               />
             </div>
             <div className="pt-3 px-1">
-              <h3 className="text-sm font-medium text-gray-900 truncate">{product.title}</h3>
-              <p className="text-sm font-semibold text-gray-600 mt-1 mb-1">{product.price}</p>
+              <h3 className="text-sm font-medium text-gray-900 truncate">
+                {product.title}
+              </h3>
+              <p className="text-sm font-semibold text-gray-600 mt-1 mb-1">
+                {product.price}
+              </p>
             </div>
           </div>
         </motion.div>
