@@ -111,7 +111,7 @@ export default function CardList() {
 
   // Main cards
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen items-center justify-center ">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen items-center justify-center ml-20 ">
       {products.map((product, index) => (
         <motion.div
           key={index}
