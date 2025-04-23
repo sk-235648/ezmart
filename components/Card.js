@@ -111,16 +111,16 @@ export default function CardList() {
 
   // Main cards
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen items-center justify-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen items-center justify-center ">
       {products.map((product, index) => (
         <motion.div
           key={index}
           whileHover={{ scale: 1.03 }}
-          className="relative w-[250px] h-[290px] group cursor-pointer"
+          className="relative w-[250px] h-[265px] group cursor-pointer"
           onClick={() => setSelectedProduct(index)}
         >
           <div className="absolute inset-0 bg-white rounded-3xl shadow-xl opacity-0 group-hover:opacity-100 transition duration-300 z-0 "></div>
-          <div className="relative z-10 p-2">
+          <div className="relative z-10 p-2 ">
             <div className="relative w-full h-[180px] rounded-xl overflow-hidden mx-auto">
               <Image
                 src={product.imageUrl}

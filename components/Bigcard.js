@@ -66,10 +66,10 @@ const  Bigcard = () => {
 
               {/* Image area - replace these divs with your actual images */}
               <div className="w-1/2 relative">
-                <div className="absolute top-8 right-10 w-32 h-32 bg-white/80 rounded-lg shadow-sm">
+                <div className="absolute top-8 right-10 w-32 h-32   rounded-lg shadow-sm">
                 <img src="./images/earbud.jpg" alt="" /></div>
-                <div className="absolute top-1/2 right-20 w-40 h-40 bg-white/90 rounded-lg shadow-md -translate-y-1/2"><img src="./images/earbud.jpg" alt="" /></div>
-                <div className="absolute bottom-8 right-10 w-32 h-32 bg-white/80 rounded-lg shadow-sm"><img src="./images/earbud.jpg" alt="" /></div>
+                <div className="absolute top-1/2 right-20 w-40 h-40  rounded-lg shadow-md -translate-y-1/2"><img src="./images/earbud.jpg" alt="" /></div>
+                <div className="absolute bottom-8 right-10 w-32 h-32 rounded-lg shadow-sm"><img src="./images/earbud.jpg" alt="" /></div>
               </div>
             </div>
           ))}
