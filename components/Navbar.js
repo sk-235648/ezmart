@@ -1,15 +1,18 @@
 "use client"
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Changed to use the App Router
 import { FiShoppingCart, FiSearch, FiMenu, FiUser } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
 import SignUpModal from './SignUpModal';
 import SignInModal from './SignInModal';
 
 export default function Navbar() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const searchContainerRef = useRef(null);
   const searchInputRef = useRef(null);
 
@@ -24,6 +27,15 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchExpanded]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setSearchExpanded(false);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <>
@@ -44,7 +56,6 @@ export default function Navbar() {
                   <span className="hidden lg:block">
                     <img src="./logo1.png" width={140} height={140} className="bg-purple-300" />
                   </span>
-
                   {/* "EZ" text for small and medium screens */}
                   <span className="block lg:hidden text-xl">EZ</span>
                 </span>
@@ -56,32 +67,44 @@ export default function Navbar() {
               ref={searchContainerRef}
               className={`relative flex-1 mx-2 md:mx-4 ${searchExpanded ? 'md:flex-1' : ''}`}
             >
-              <div className="hidden md:block relative w-full">
-                <input
-                  type="text"
-                  placeholder="Search for anything..."
-                  className="w-full border border-gray-300 rounded-md py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-transparent"
-                />
-                <button className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md hover:bg-purple-700 focus:outline-none">
-                  Search
-                </button>
-              </div>
+              <form onSubmit={handleSearch}>
+                <div className="hidden md:block relative w-full">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for anything..."
+                    className="w-full border border-gray-300 rounded-md py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-transparent"
+                  />
+                  <button 
+                    type="submit"
+                    className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md hover:bg-purple-700 focus:outline-none"
+                  >
+                    Search
+                  </button>
+                </div>
 
-              <div className="md:hidden flex items-center border border-gray-300 rounded-md overflow-hidden h-10">
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Search for anything..."
-                  className="flex-1 pl-4 pr-2 focus:outline-none"
-                  onFocus={() => {
-                    setSearchExpanded(true);
-                    setMobileMenuOpen(false);
-                  }}
-                />
-                <button className="px-3 h-full border-l border-gray-300 text-gray-500 hover:bg-gray-100">
-                  <FiSearch className="h-5 w-5" />
-                </button>
-              </div>
+                <div className="md:hidden flex items-center border border-gray-300 rounded-md overflow-hidden h-10">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for anything..."
+                    className="flex-1 pl-4 pr-2 focus:outline-none"
+                    onFocus={() => {
+                      setSearchExpanded(true);
+                      setMobileMenuOpen(false);
+                    }}
+                  />
+                  <button 
+                    type="submit"
+                    className="px-3 h-full border-l border-gray-300 text-gray-500 hover:bg-gray-100"
+                  >
+                    <FiSearch className="h-5 w-5" />
+                  </button>
+                </div>
+              </form>
             </div>
 
             {/* Right side - cart and sign in */}

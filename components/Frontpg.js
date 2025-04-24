@@ -6,7 +6,13 @@ export default function Frontpg() {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-5 max-w-7xl mx-auto min-h-screen mb-15 ">
       {/* Large promo tile */}
       <div className="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden min-h-[400px] flex items-end bg-cover bg-center hover:scale-105 transition-all duration-300" 
-           style={{ backgroundImage: "url('/images/Shoe.jpg')" }}>
+           style={{ 
+            backgroundImage: "url('/images/Shoe.jpg')",
+            backgroundSize: 'cover',
+            imageRendering: 'crisp-edges',
+            scrollBehavior: 'smooth',
+            contentVisibility: 'auto'
+          }}>
         <div className="p-6 w-full text-white">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 text-shadow">Step into summer</h2>
           <Link href="/shop" className="inline-block px-6 py-3 bg-white text-gray-900 font-bold rounded-full hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-lg">
@@ -28,7 +34,13 @@ export default function Frontpg() {
 
       {/* Medium promo tile 2 */}
       <div className="md:col-span-2 relative rounded-xl overflow-hidden min-h-[200px] flex items-end bg-cover bg-center hover:scale-105 transition-all duration-300" 
-           style={{ backgroundImage: "url('/images/earbud.jpg')" }}>
+           style={{ 
+            backgroundImage: "url('/images/earbud.jpg')",
+            backgroundSize: 'cover',
+            imageRendering: 'crisp-edges',
+            scrollBehavior: 'smooth',
+            contentVisibility: 'auto'
+          }}>
         <div className="p-5 w-full text-white">
           <h3 className="text-xl font-bold mb-3 text-shadow">Beach-ready tees*</h3>
           <Link href="/easter" className="inline-block px-5 py-2.5 bg-white text-gray-900 font-bold rounded-full hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow-md">
@@ -39,7 +51,13 @@ export default function Frontpg() {
 
       {/* Small promo tile 1 */}
       <div className="relative rounded-xl overflow-hidden min-h-[200px] flex items-end bg-cover bg-center hover:scale-105 transition-all duration-300" 
-           style={{ backgroundImage: "url('/images/Tshirt1.jpg')" }}>
+          style={{ 
+            backgroundImage: "url('/images/Tshirt1.jpg')",
+            backgroundSize: 'cover',
+            imageRendering: 'crisp-edges',
+            scrollBehavior: 'smooth',
+            contentVisibility: 'auto'
+          }}>
         <div className="p-5 w-full text-white">
           <h3 className="text-lg font-bold mb-3 text-shadow">Walk in style</h3>
           <Link href="/dining" className="inline-block px-4 py-2 bg-white text-gray-900 font-bold rounded-full hover:bg-gray-100 hover:scale-105 transition-all duration-200 shadow">
