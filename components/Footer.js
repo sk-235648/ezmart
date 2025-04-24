@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 import Link from 'next/link';
 import { FiFacebook, FiTwitter, FiInstagram, FiYoutube, FiLinkedin } from 'react-icons/fi';
@@ -170,3 +171,16 @@ export default function Footer() {
         </footer>
     );
 }
+=======
+import React from 'react'
+
+const Footer = () => {
+  return (
+    <div>
+      <h1>This is footer</h1>
+    </div>
+  )
+}
+
+export default Footer
+>>>>>>> main
