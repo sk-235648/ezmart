@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 "use client"
 import Link from 'next/link';
 import { FiFacebook, FiTwitter, FiInstagram, FiYoutube, FiLinkedin } from 'react-icons/fi';
