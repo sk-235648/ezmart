@@ -1,7 +1,5 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
-
 const Bigcard = () => {
   const [currentCard, setCurrentCard] = useState(0);
 
@@ -29,8 +27,7 @@ const Bigcard = () => {
       ]
     }
   ];
-
-  // Auto-slide every 3 seconds
+ 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentCard((prev) => (prev + 1) % cards.length);
