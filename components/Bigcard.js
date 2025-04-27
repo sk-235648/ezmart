@@ -27,17 +27,6 @@ const Bigcard = () => {
         "/images/watch.jpg",
         "/images/accessories.jpg"
       ]
-    },
-    {
-      title: "Premium certified refurbished",
-      description: "Like-new products with warranty at 30-50% off.",
-      buttonText: "Browse deals",
-      categories: ["Tablets", "Monitors", "Accessories"],
-      images: [
-        "/images/earbud.jpg",
-        "/images/watch.jpg",
-        "/images/accessories.jpg"
-      ]
     }
   ];
 
@@ -95,7 +84,7 @@ const Bigcard = () => {
                   ))}
                 </div>
 
-               
+                {/* Desktop layout - original positioning */}
                 <div className="hidden md:block w-full h-full">
                   <div 
                     className="absolute top-8 right-10 w-32 h-32 rounded-lg shadow-sm bg-cover bg-center"
