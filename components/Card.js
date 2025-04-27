@@ -1,8 +1,13 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+// /components/Card.js
 
+"use client";
+import Image from "next/image";
+import Link from "next/link"; // Importing Link from next
+import { motion , AnimatePresence} from "framer-motion";
+import { useState } from "react";
+
+
+// Dummy product data
 const products = [
   { imageUrl: "/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890" },
 
@@ -29,104 +34,15 @@ const products = [
 ];
 
 export default function CardList() {
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [openImage, setOpenImage] = useState(null);
+   
 
-  const handleBack = () => {
-    setSelectedProduct(null);
-    setOpenImage(null);
-  };
-
-  const handleImageOpen = (item) => {
-    setOpenImage(item);
-  };
-
-  if (selectedProduct !== null) {
-    // Show related products
-    const related = Array.from({ length: 20 }, (_, i) => ({
-      imageUrl: products[selectedProduct].imageUrl,
-      title: `Related ${i + 1} - ${products[selectedProduct].title}`,
-      price: `₹${Math.floor(Math.random() * 900 + 100)}`,
-    }));
-
-    return (
-      <div className="p-6 ">
-        <button
-          onClick={handleBack}
-          className="mb-6 px-4 py-2 bg-violet-600 text-white rounded-lg"
-        >
-          &lt;- Go Back
-        </button>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-          {related.map((item, i) => (
-            <div
-              key={i}
-              className="bg-white p-4 rounded-xl shadow-md cursor-pointer"
-              onClick={() => handleImageOpen(item)}
-            >
-              <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="mt-3 text-sm font-semibold">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.price}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Modal */}
-        <AnimatePresence>
-          {openImage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
-              onClick={() => setOpenImage(null)}
-            >
-              <motion.div
-                initial={{ scale: 0.8 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.8 }}
-                className="bg-white rounded-2xl p-4 w-[90%] max-w-[500px] relative"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Image
-                  src={openImage.imageUrl}
-                  alt={openImage.title}
-                  width={500}
-                  height={400}
-                  className="rounded-xl object-cover w-full h-[300px]"
-                />
-                <h3 className="text-lg font-bold mt-4">{openImage.title}</h3>
-                <p className="text-gray-600 font-semibold mb-2">
-                  {openImage.price}
-                </p>
-                <button
-                  onClick={() => setOpenImage(null)}
-                  className="absolute top-2 right-2 text-black font-bold"
-                >
-                  ✖
-                </button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  }
 
   // Main cards
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen  ml-20 ">
       {products.map((product, index) => (
         <motion.div
-          key={index}
+          key={product.id}
           whileHover={{ scale: 1.03 }}
           className="relative w-[250px] h-[265px] group cursor-pointer"
           onClick={() => setSelectedProduct(index)}
@@ -150,6 +66,10 @@ export default function CardList() {
               </p>
             </div>
           </div>
+          {/* Wrap the card with Link for redirection */}
+          <Link href={`/product/${product.id}`} passHref>
+            <div className="absolute inset-0 bg-transparent"></div>
+          </Link>
         </motion.div>
       ))}
     </div>
