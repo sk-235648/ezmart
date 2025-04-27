@@ -26,6 +26,7 @@ export default function Home() {
     <Card/>
     
     <Bigcard/>
+    
   
 
     </>
