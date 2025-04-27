@@ -1,8 +1,13 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+// /components/Card.js
 
+"use client";
+import Image from "next/image";
+import Link from "next/link"; // Importing Link from next
+import { motion , AnimatePresence} from "framer-motion";
+import { useState } from "react";
+
+
+// Dummy product data
 const products = [
   { imageUrl: "/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890" },
 
@@ -126,7 +131,7 @@ export default function CardList() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-mx-auto gap-4 p-4 min-h-screen  ml-20 ">
       {products.map((product, index) => (
         <motion.div
-          key={index}
+          key={product.id}
           whileHover={{ scale: 1.03 }}
           className="relative w-[250px] h-[265px] group cursor-pointer"
           onClick={() => setSelectedProduct(index)}
@@ -150,6 +155,10 @@ export default function CardList() {
               </p>
             </div>
           </div>
+          {/* Wrap the card with Link for redirection */}
+          <Link href={`/product/${product.id}`} passHref>
+            <div className="absolute inset-0 bg-transparent"></div>
+          </Link>
         </motion.div>
       ))}
     </div>

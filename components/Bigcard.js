@@ -7,14 +7,25 @@ const Bigcard = () => {
 
   const cards = [
     {
-      title: "Save with refurbished appliances",
-      description: "Put top brands in your price range with quality refurbished.",
-      buttonText: "Shop refurbished",
+      title: "Shop the Grand deals ",
+      description: "Top brands with exiting offers !!!",
+      buttonText: "Shop  Now",
       categories: ["Laptops", "Smartphones", "Audio"],
       images: [
         "/images/Shirt.jpg",
         "/images/Shoe.jpg",
         "/images/Tshirt.jpg"
+      ]
+    },
+    {
+      title: "Premium certified refurbished",
+      description: "Like-new products with warranty at 30-50% off.",
+      buttonText: "Browse deals",
+      categories: ["Tablets", "Monitors", "Accessories"],
+      images: [
+        "/images/earbud.jpg",
+        "/images/watch.jpg",
+        "/images/accessories.jpg"
       ]
     },
     {
@@ -84,7 +95,7 @@ const Bigcard = () => {
                   ))}
                 </div>
 
-                {/* Desktop layout - original positioning */}
+               
                 <div className="hidden md:block w-full h-full">
                   <div 
                     className="absolute top-8 right-10 w-32 h-32 rounded-lg shadow-sm bg-cover bg-center"
