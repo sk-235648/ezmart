@@ -4,6 +4,7 @@
 import Image from "next/image";
 import Link from "next/link"; // Importing Link from next
 import { motion , AnimatePresence} from "framer-motion";
+import { useState } from "react";
 
 
 // Dummy product data
