@@ -7,9 +7,9 @@ const Bigcard = () => {
 
   const cards = [
     {
-      title: "Save with refurbished appliances",
-      description: "Put top brands in your price range with quality refurbished.",
-      buttonText: "Shop refurbished",
+      title: "Shop the Grand deals ",
+      description: "Top brands with exiting offers !!!",
+      buttonText: "Shop  Now",
       categories: ["Laptops", "Smartphones", "Audio"],
       images: [
         "/images/Shirt.jpg",
