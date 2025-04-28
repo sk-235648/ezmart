@@ -54,7 +54,7 @@ export default function Navbar() {
                 <span className="font-bold text-purple-600 cursor-pointer">
                   {/* Logo for large screens */}
                   <span className="hidden lg:block">
-                    <img src="./logo1.png" width={140} height={140} className="bg-purple-300" />
+                    <img src="./logo1.png" width={140} height={140} />
                   </span>
                   {/* "EZ" text for small and medium screens */}
                   <span className="block lg:hidden text-xl">EZ</span>
