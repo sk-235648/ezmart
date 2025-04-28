@@ -5,7 +5,6 @@ import Bigcard from "@/components/Bigcard";
 import CardList from "@/components/Card";
  
 import Frontpg from "@/components/Frontpg";
-import Navbar from "@/components/Navbar";
  
 
 import Image from "next/image";
@@ -19,7 +18,6 @@ export default function Home() {
  
     <>
      
-    <Navbar/>
     <Frontpg/>
 
     <Card/>
