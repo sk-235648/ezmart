@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Heart, HeartOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import {use} from "react"
 import Link from "next/link";
 
 // Dummy products
@@ -19,7 +20,8 @@ const products = [
 ];
 
 export default function ProductPage({ params }) {
-  const id = params.id;
+  const unwrappedParams = use(params);
+  const id = unwrappedParams.id;
   const productId = parseInt(id);
 
   // related products (except the clicked one)
