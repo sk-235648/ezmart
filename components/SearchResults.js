@@ -80,3 +80,4 @@ function generateMockResults(query) {
     product.description.toLowerCase().includes(query.toLowerCase())
   );
 }
+ 
