@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 const products = [
   { id: 1, imageUrl: "/imagecard/card1.jpg", title: "Custom Gold Name Necklace",  rating: 4.5 },
   { id: 2, imageUrl: "/imagecard/card4.png", title: "Home decor",  rating: 4.0 },
-  { id: 3, imageUrl: "/imagecard/card6.jpg", title: "Gift for her",  rating: 4.7 },
+  { id: 3, imageUrl: "/imagecard/card6.jpg", title: "Gift for her",  rating: 4.6 },
   { id: 4, imageUrl: "/imagecard/card7.jpeg", title: "Beautiful Tops For Women.",  rating: 4.2 },
   { id: 5, imageUrl: "/imagecard/card8.jpg", title: "Men's Printed Evening Shirts", rating: 4.1 },
   { id: 6, imageUrl: "/imagecard/card9.jpg", title: "Sport Chronograph Men's Watch",  rating: 4.8 },
