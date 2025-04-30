@@ -143,28 +143,7 @@ export default function Footer() {
                     <p className="text-white text-sm">
                         &copy; {new Date().getFullYear()} EZ Mart. All rights reserved.
                     </p>
-                    <div className="mt-4 md:mt-0 flex space-x-6">
-                        <img
-                            src="/payment-methods/visa.png"
-                            alt="Visa"
-                            className="h-6 object-contain"
-                        />
-                        <img
-                            src="/payment-methods/mastercard.png"
-                            alt="Mastercard"
-                            className="h-6 object-contain"
-                        />
-                        <img
-                            src="/payment-methods/paypal.png"
-                            alt="PayPal"
-                            className="h-6 object-contain"
-                        />
-                        <img
-                            src="/payment-methods/apple-pay.png"
-                            alt="Apple Pay"
-                            className="h-6 object-contain"
-                        />
-                    </div>
+                    
                 </div>
             </div>
         </footer>

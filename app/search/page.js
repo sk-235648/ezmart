@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import SearchResults from '@/components/SearchResults';
+import SearchResults from '@/components/search/SearchResults';
 
 export default function SearchPage({ searchParams }) {
   const query = searchParams?.q || '';

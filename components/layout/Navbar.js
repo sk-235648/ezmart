@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // Changed to use the App Router
 import { FiShoppingCart, FiSearch, FiMenu, FiUser } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
-import SignUpModal from './SignUpModal';
-import SignInModal from './SignInModal';
+ import SignInModal from '../modals/SignInModal';
+ import SignUpModal from '../modals/SignUpModal';
 
 export default function Navbar() {
   const router = useRouter();
