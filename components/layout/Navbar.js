@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation'; // Changed to use the App Router
 import { FiShoppingCart, FiSearch, FiMenu, FiUser } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
-import SignUpModal from './SignUpModal';
-import SignInModal from './SignInModal';
+ import SignInModal from '../modals/SignInModal';
+ import SignUpModal from '../modals/SignUpModal';
 
 export default function Navbar() {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function Navbar() {
                 <span className="font-bold text-purple-600 cursor-pointer">
                   {/* Logo for large screens */}
                   <span className="hidden lg:block">
-                    <img src="./logo1.png" width={140} height={140} className="bg-purple-300" />
+                    <img src="./logo1.png" width={140} height={140} />
                   </span>
                   {/* "EZ" text for small and medium screens */}
                   <span className="block lg:hidden text-xl">EZ</span>

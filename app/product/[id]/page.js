@@ -4,22 +4,24 @@ import Image from "next/image";
 import { Heart, HeartOff } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import {use} from "react"
 import Link from "next/link";
 
 // Dummy products
 const products = [
-  { id: 1, imageUrl: "/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890", discount: "10%" },
-  { id: 2, imageUrl: "/card4.png", title: "Home decor", price: "₹899", discount: "15%" },
-  { id: 3, imageUrl: "/card6.jpg", title: "Gift for her", price: "₹9999", discount: "20%" },
-  { id: 4, imageUrl: "/card7.jpeg", title: "Beautiful Tops For Women.", price: "₹1299", discount: "25%" },
-  { id: 5, imageUrl: "/card8.jpg", title: "Men's Printed Evening Shirts", price: "₹1139", discount: "30%" },
-  { id: 6, imageUrl: "/card9.jpg", title: "Sport Chronograph Men's Watch", price: "₹50000", discount: "35%" },
-  { id: 7, imageUrl: "/card10.jpg", title: "High End Makeup Brands", price: "₹999", discount: "5%" },
-  { id: 8, imageUrl: "/card11.webp", title: "Graim Shoes Men Shoes", price: "₹1949", discount: "12%" },
+  { id: 1, imageUrl: "/imagecard/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890", discount: "10%" },
+  { id: 2, imageUrl: "/imagecard/card4.png", title: "Home decor", price: "₹899", discount: "15%" },
+  { id: 3, imageUrl: "/imagecard/card6.jpg", title: "Gift for her", price: "₹9999", discount: "20%" },
+  { id: 4, imageUrl: "/imagecard/card7.jpeg", title: "Beautiful Tops For Women.", price: "₹1299", discount: "25%" },
+  { id: 5, imageUrl: "/imagecard/card8.jpg", title: "Men's Printed Evening Shirts", price: "₹1139", discount: "30%" },
+  { id: 6, imageUrl: "/imagecard/card9.jpg", title: "Sport Chronograph Men's Watch", price: "₹50000", discount: "35%" },
+  { id: 7, imageUrl: "/imagecard/card10.jpg", title: "High End Makeup Brands", price: "₹999", discount: "5%" },
+  { id: 8, imageUrl: "/imagecard/card11.webp", title: "Graim Shoes Men Shoes", price: "₹1949", discount: "12%" },
 ];
 
 export default function ProductPage({ params }) {
-  const id = params.id;
+  const unwrappedParams = use(params);
+  const id = unwrappedParams.id;
   const productId = parseInt(id);
 
   // related products (except the clicked one)
@@ -48,7 +50,7 @@ function RelatedCard({ product }) {
       whileHover={{ scale: 1.05 }}
       className="relative bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer"
     >
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/items/${product.title}`}>
         <div className="relative w-full h-[200px]">
           <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
           {/* Like button */}
