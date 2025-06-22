@@ -9,11 +9,11 @@ const Cart = () => {
 
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto gap-8">
         {/* Left Section - 70% */}
-        <div className="w-full lg:w-[70%]  p-6 ">
+        <div className="w-full lg:w-[70%] bg-white p-6 rounded-lg shadow">
           <div className="border-t-2 border-b-2 border-gray-300 py-6">
             {/* Headings */}
-            <div className="flex justify-end pr-4 text-sm font-bold  mb-4">
-              <div className="w-[100px] text-center">Price</div>
+            <div className="flex justify-end pr-4 text-sm font-semibold text-gray-500 mb-4">
+              <div className="w-[100px] text-center">Each</div>
               <div className="w-[120px] text-center">Quantity</div>
               <div className="w-[100px] text-center">Total</div>
             </div>
@@ -23,7 +23,7 @@ const Cart = () => {
               {/* Product Info */}
               <div className="flex gap-6 w-[60%]">
                 <Image
-                  src="/images/Tshirt.webp"
+                  src="/images/Tshirt.jpg"
                   width={150}
                   height={180}
                   alt="Product"
@@ -38,7 +38,7 @@ const Cart = () => {
               </div>
 
               {/* Price Info */}
-              <div className="flex gap-4 items-center justify-end w-[40%] pr-4 font-semibold text-gray-500">
+              <div className="flex gap-4 items-center justify-end w-[40%] pr-4">
                 <div className="w-[100px] text-center font-semibold">$39.99</div>
                 <div className="w-[120px] text-center">
                   <select className="border border-gray-300 px-3 py-1 rounded">
@@ -52,7 +52,7 @@ const Cart = () => {
             </div>
 
             {/* Bottom Buttons */}
-            <div className="flex gap-6 mt-10  text-sm text-blue-600 ml-[22%]">
+            <div className="flex gap-6 mt-6 text-sm text-blue-600 ml-[156px]">
               <button className="hover:underline">Edit</button>
               <button className="hover:underline text-red-600">Remove</button>
               <button className="hover:underline text-gray-600">Save for Later</button>
@@ -65,7 +65,6 @@ const Cart = () => {
             <span>$39.99</span>
           </div>
         </div>
-        
 
         {/* Right Section - 30% */}
         <div className="w-full lg:w-[30%] bg-white p-6 rounded-lg shadow space-y-6">
