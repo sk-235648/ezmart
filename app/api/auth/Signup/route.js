@@ -7,7 +7,7 @@ export async function POST(req) {
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
-      return new Response(JSON.stringify({ message: "All fields are required" }), {
+      return new Response(JSON.stringify({ message: "All fields are required-" }), {
         status: 400,
       });
     }
