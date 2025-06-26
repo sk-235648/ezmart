@@ -1,83 +1,262 @@
 "use client";
-
-import Image from "next/image";
-import { Heart, HeartOff } from "lucide-react";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import {use} from "react"
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { FiShoppingCart, FiHeart, FiShare2, FiChevronLeft } from "react-icons/fi";
+import Image from "next/image";
 
-// Dummy products
-const products = [
-  { id: 1, imageUrl: "/imagecard/card1.jpg", title: "Custom Gold Name Necklace", price: "₹890", discount: "10%" },
-  { id: 2, imageUrl: "/imagecard/card4.png", title: "Home decor", price: "₹899", discount: "15%" },
-  { id: 3, imageUrl: "/imagecard/card6.jpg", title: "Gift for her", price: "₹9999", discount: "20%" },
-  { id: 4, imageUrl: "/imagecard/card7.jpeg", title: "Beautiful Tops For Women.", price: "₹1299", discount: "25%" },
-  { id: 5, imageUrl: "/imagecard/card8.jpg", title: "Men's Printed Evening Shirts", price: "₹1139", discount: "30%" },
-  { id: 6, imageUrl: "/imagecard/card9.jpg", title: "Sport Chronograph Men's Watch", price: "₹50000", discount: "35%" },
-  { id: 7, imageUrl: "/imagecard/card10.jpg", title: "High End Makeup Brands", price: "₹999", discount: "5%" },
-  { id: 8, imageUrl: "/imagecard/card11.webp", title: "Graim Shoes Men Shoes", price: "₹1949", discount: "12%" },
-];
+export default function ProductDetail() {
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const params = useParams();
 
-export default function ProductPage({ params }) {
-  const unwrappedParams = use(params);
-  const id = unwrappedParams.id;
-  const productId = parseInt(id);
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/product/${params.id}`);
+        if (!res.ok) throw new Error("Failed to fetch product");
+        const data = await res.json();
 
-  // related products (except the clicked one)
-  const relatedProducts = products.filter((p) => p.id !== productId);
+        if (!data) throw new Error("Product not found");
+
+        setProduct(data);
+        // Initialize with first available size and color
+        if (data.sizes) {
+          const sizesArray = data.sizes.split(",");
+          setSelectedSize(sizesArray[0].trim());
+        }
+        if (data.colors) {
+          const colorsArray = data.colors.split(",");
+          setSelectedColor(colorsArray[0].trim());
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (params.id) fetchProduct();
+  }, [params.id]);
+
+  const handleAddToCart = async () => {
+    try {
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: params.id,
+          size: selectedSize,
+          color: selectedColor,
+          quantity,
+          price: product.price,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to add to cart");
+      alert("Product added to cart successfully!");
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      alert("Failed to add to cart");
+    }
+  };
+
+  if (loading) return <div className="p-10 text-center text-gray-600">Loading product...</div>;
+  if (error) return <div className="p-10 text-center text-red-500">Error: {error}</div>;
+  if (!product) return <div className="p-10 text-center text-gray-600">Product not found</div>;
+
+  // Helper to parse comma-separated strings into arrays
+  const parseAttributes = (str) => {
+    return str ? str.split(",").map(item => item.trim()) : [];
+  };
+
+  const sizes = parseAttributes(product.sizes);
+  const colors = parseAttributes(product.colors);
+
+  // Function to handle image URLs
+  const getImageUrl = (url) => {
+    if (!url) return null;
+    // For Cloudinary URLs
+    if (url.includes('res.cloudinary.com')) {
+      return url;
+    }
+    // For local paths
+    return url.startsWith('/') ? url : `/${url}`;
+  };
 
   return (
-    <div className="p-8">
-      {/* Only Related Products */}
-      <h2 className="text-2xl font-bold mb-6">Related Products</h2>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-white shadow-sm py-4 px-6">
+        <div className="max-w-7xl mx-auto">
+          <Link href="/" className="flex items-center text-purple-600 hover:text-purple-800">
+            <FiChevronLeft className="mr-1" /> Continue Shopping
+          </Link>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {relatedProducts.map((product) => (
-          <RelatedCard key={product.id} product={product} />
-        ))}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6">
+            {/* Product Images */}
+            <div className="space-y-4">
+              <div className="bg-gray-100 rounded-lg overflow-hidden h-96 flex items-center justify-center">
+                {product.images?.[0] ? (
+                  <img
+                    src={getImageUrl(product.images[0])}
+                    alt={product.title || "Product image"}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      e.target.src = '/placeholder-product.jpg';
+                      e.target.onerror = null;
+                    }}
+                  />
+                ) : (
+                  <div className="text-gray-400">No image available</div>
+                )}
+              </div>
+              <div className="flex space-x-2 overflow-x-auto py-2">
+                {product.images?.map((img, i) => (
+                  <div key={i} className="flex-shrink-0">
+                    <img
+                      src={getImageUrl(img)}
+                      className="w-16 h-16 rounded-md object-cover border-2 border-gray-200 hover:border-purple-500 cursor-pointer"
+                      alt={`Product thumbnail ${i}`}
+                      onError={(e) => {
+                        e.target.src = '/placeholder-thumbnail.jpg';
+                        e.target.onerror = null;
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Product Details */}
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {product.title || "Untitled Product"}
+                </h1>
+                <div className="flex items-center mt-2">
+                  <span className="text-2xl font-bold text-purple-600">
+                    ₹{product.price?.toLocaleString() || "N/A"}
+                  </span>
+                  {product.expenses && (
+                    <span className="text-gray-600 ml-2 text-sm">
+                      (Cost: ₹{product.expenses?.toLocaleString()})
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {product.description && (
+                  <p className="text-gray-700">{product.description}</p>
+                )}
+
+                {/* Sizes */}
+                {sizes.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">Size</h3>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`px-3 py-1 border rounded-md text-sm ${
+                            selectedSize === size
+                              ? "bg-purple-600 text-white border-purple-600"
+                              : "bg-white text-gray-700 border-gray-300"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Colors */}
+                {colors.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">Color</h3>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {colors.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setSelectedColor(color)}
+                          className={`w-8 h-8 rounded-full border-2 ${
+                            selectedColor === color ? "border-purple-500" : "border-gray-300"
+                          }`}
+                          style={{ backgroundColor: color }}
+                          title={color}
+                          aria-label={color}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quantity */}
+                <div className="flex items-center space-x-4">
+                  <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
+                  <div className="flex items-center border rounded-md">
+                    <button
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      className="px-3 py-1 text-lg hover:bg-gray-100"
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="px-3 py-1">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity((q) => q + 1)}
+                      className="px-3 py-1 text-lg hover:bg-gray-100"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 flex items-center justify-center bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition-colors"
+                >
+                  <FiShoppingCart className="mr-2" /> Add to Cart
+                </button>
+                <button
+                  onClick={() => {
+                    handleAddToCart();
+                    window.location.href = "/checkout";
+                  }}
+                  className="flex-1 bg-slate-800 text-white py-3 px-6 rounded-md hover:bg-black transition-colors"
+                >
+                  Buy Now
+                </button>
+              </div>
+
+              <div className="flex space-x-4 pt-4">
+                <button className="flex items-center text-gray-600 hover:text-purple-600">
+                  <FiHeart className="mr-2" /> Wishlist
+                </button>
+                <button className="flex items-center text-gray-600 hover:text-purple-600">
+                  <FiShare2 className="mr-2" /> Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  );
-}
-
-// Ek chhota se card component
-function RelatedCard({ product }) {
-  const [liked, setLiked] = useState(false);
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className="relative bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer"
-    >
-      <Link href={`/items/${product.title}`}>
-        <div className="relative w-full h-[200px]">
-          <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
-          {/* Like button */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setLiked(!liked);
-            }}
-            className="absolute top-3 right-3 bg-white p-2 rounded-full shadow-md z-10"
-          >
-            {liked ? <HeartOff className="text-red-500 w-5 h-5" /> : <Heart className="text-gray-600 w-5 h-5" />}
-          </button>
-        </div>
-
-        <div className="p-4">
-          <h3 className="font-semibold text-gray-800 truncate">{product.title}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="font-bold">{product.price}</p>
-            <span className="text-green-600 text-xs bg-green-100 px-2 py-0.5 rounded-full">
-              {product.discount} OFF
-            </span>
-          </div>
-
-          {/* Dummy Star Rating */}
-          <div className="text-yellow-400 text-sm mt-1">⭐⭐⭐⭐☆</div>
-        </div>
-      </Link>
-    </motion.div>
   );
 }
