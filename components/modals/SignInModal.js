@@ -25,6 +25,8 @@ export default function SignInModal({ onClose, showSignUp }) {
       if (res.ok) {
         // Handle successful login (e.g., close modal, show message, redirect)
         onClose();
+        router.push("/dashboard");
+
         // Optionally: show a toast or set a global auth state
       } else {
         setError(data.message || "Login failed");

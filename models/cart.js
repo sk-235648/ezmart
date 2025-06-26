@@ -1,4 +1,4 @@
-//models/cart.js
+// models/cart.js
 import mongoose from 'mongoose';
 
 const cartItemSchema = new mongoose.Schema({
@@ -45,33 +45,34 @@ const cartSchema = new mongoose.Schema({
   }
 });
 
-// Update the updatedAt field before saving
-cartSchema.pre('save', function(next) {
+// Auto-update updatedAt
+cartSchema.pre('save', function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Static methods for cart operations
+// Static methods
 cartSchema.statics = {
   async getCartByUserId(userId) {
-    return this.findOne({ userId })
-      .populate('items.productId', 'title images price')
-      .lean();
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    return this.findOne({ userId: userObjectId })
+      .populate('items.productId', 'title images price');
   },
 
   async addItemToCart(userId, productData) {
-    const { productId, quantity, color, size, price } = productData;
-    
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const productObjectId = new mongoose.Types.ObjectId(productData.productId);
+
     return this.findOneAndUpdate(
-      { userId },
+      { userId: userObjectId },
       {
         $push: {
           items: {
-            productId,
-            quantity,
-            color,
-            size,
-            price
+            productId: productObjectId,
+            quantity: productData.quantity,
+            color: productData.color,
+            size: productData.size,
+            price: productData.price
           }
         }
       },
@@ -80,24 +81,31 @@ cartSchema.statics = {
   },
 
   async updateItemQuantity(userId, productId, newQuantity) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const productObjectId = new mongoose.Types.ObjectId(productId);
+
     return this.findOneAndUpdate(
-      { userId, 'items.productId': productId },
+      { userId: userObjectId, 'items.productId': productObjectId },
       { $set: { 'items.$.quantity': newQuantity } },
       { new: true }
     ).populate('items.productId', 'title images price');
   },
 
   async removeItemFromCart(userId, productId) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const productObjectId = new mongoose.Types.ObjectId(productId);
+
     return this.findOneAndUpdate(
-      { userId },
-      { $pull: { items: { productId } } },
+      { userId: userObjectId },
+      { $pull: { items: { productId: productObjectId } } },
       { new: true }
     ).populate('items.productId', 'title images price');
   },
 
   async clearCart(userId) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
     return this.findOneAndUpdate(
-      { userId },
+      { userId: userObjectId },
       { $set: { items: [] } },
       { new: true }
     );
