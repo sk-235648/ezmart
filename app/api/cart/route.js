@@ -1,50 +1,113 @@
-import { connectDB } from '@/lib/db';
-import Cart from '@/models/cart';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth"; // Path to your exported authOption h
+// app/api/cart/route.js
+import { connectDB } from "@/lib/db";
+import Cart from "@/models/cart";
+import Product from "@/models/Product";
+import { verifyToken } from "@/lib/auth";
 
-export async function POST(req) {
-  await connectDB("ezmart-admin");
-
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    return Response.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-  }
-
-  const userId = session.user.id;
-  const body = await req.json();
-  const { productId, size, color, quantity, price } = body;
-
-  if (!productId || !quantity || !price) {
-    return Response.json({ success: false, message: 'Missing required fields' }, { status: 400 });
-  }
+export async function GET() {
+  await connectDB();
 
   try {
-    let cart = await Cart.findOne({ userId });
-    if (!cart) cart = new Cart({ userId, items: [] });
+    const { userId } = await verifyToken();
 
-    const existingItemIndex = cart.items.findIndex(
-      item => item.productId.toString() === productId &&
-              item.size === size &&
-              item.color === color
-    );
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
 
-    if (existingItemIndex >= 0) {
-      cart.items[existingItemIndex].quantity += quantity;
-    } else {
-      cart.items.push({ productId, quantity, size, color, price });
+    return Response.json({
+      success: true,
+      cart: cart || { items: [] },
+    });
+  } catch (err) {
+    console.error("❌ Cart GET error:", err);
+    return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
+}
+
+export async function POST(req) {
+  await connectDB();
+
+  try {
+    const { productId, size, color, quantity, price } = await req.json();
+
+    const userId = await verifyToken(); // ✅ already a string
+
+    console.log("✅ Received userId:", userId);
+    console.log("🛒 productId:", productId);
+
+    if (!productId || !quantity || !price) {
+      return Response.json(
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
+    const cart = await Cart.addItemToCart(userId, {
+      productId,
+      size,
+      color,
+      quantity,
+      price,
+    });
+
+    return Response.json({
+      success: true,
+      message: "Item added to cart",
+      cart,
+    });
+  } catch (err) {
+    console.error("❌ Cart POST error:", err);
+    const status = err.message === "Unauthorized" ? 401 : 500;
+    return Response.json(
+      { success: false, message: err.message || "Internal server error" },
+      { status }
+    );
+  }
+}
+
+export async function PUT(req) {
+  await connectDB();
+
+  try {
+    const { userId } = await verifyToken();
+    const { productId, quantity } = await req.json();
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return Response.json({ success: false, message: "Cart not found" }, { status: 404 });
+    }
+
+    const item = cart.items.find((item) => item.productId.toString() === productId);
+    if (!item) {
+      return Response.json({ success: false, message: "Item not found" }, { status: 404 });
+    }
+
+    item.quantity = quantity;
     await cart.save();
 
-    const populatedCart = await Cart.findById(cart._id)
-      .populate('items.productId', 'title images price')
-      .lean();
+    return Response.json({ success: true, message: "Quantity updated", cart });
+  } catch (err) {
+    console.error("❌ Cart PUT error:", err);
+    return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
+}
 
-    return Response.json({ success: true, message: 'Item added to cart', cart: populatedCart });
-  } catch (error) {
-    console.error("Cart API error:", error);
-    return Response.json({ success: false, message: error.message }, { status: 500 });
+export async function DELETE(req) {
+  await connectDB();
+
+  try {
+    const { userId } = await verifyToken();
+    const { productId } = await req.json();
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return Response.json({ success: false, message: "Cart not found" }, { status: 404 });
+    }
+
+    cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+    await cart.save();
+
+    return Response.json({ success: true, message: "Item removed", cart });
+  } catch (err) {
+    console.error("❌ Cart DELETE error:", err);
+    return Response.json({ success: false, message: "Unauthorized" }, { status: 401 });
   }
 }

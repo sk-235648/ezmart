@@ -1,3 +1,4 @@
+// app/cart/page.js
 'use client';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
@@ -16,24 +17,34 @@ const Cart = () => {
   }, []);
 
   const fetchCartItems = async () => {
+  try {
+    setLoading(true);
+
+    const response = await fetch("/api/cart");
+    let data;
+
     try {
-      setLoading(true);
-      const response = await fetch('/api/cart');
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Updated to handle both direct items and populated items
-        const items = data.cart?.items || data.items || [];
-        setCartItems(items);
-      } else {
-        toast.error(data.message || 'Failed to fetch cart items');
-      }
-    } catch (error) {
-      toast.error('Network error fetching cart items');
-    } finally {
-      setLoading(false);
+      data = await response.json(); // may throw if no body
+    } catch (err) {
+      console.error("❌ Failed to parse cart response JSON:", err);
+      toast.error("Something went wrong (invalid server response)");
+      return;
     }
-  };
+
+    if (response.ok && data.success) {
+      const items = data.cart?.items || data.items || [];
+      setCartItems(items);
+    } else {
+      toast.error(data?.message || "Failed to fetch cart items");
+    }
+  } catch (error) {
+    console.error("❌ Network error:", error);
+    toast.error("Network error fetching cart items");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const updateQuantity = async (productId, newQuantity) => {
     try {
