@@ -2,8 +2,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { FiShoppingCart, FiHeart, FiShare2, FiChevronLeft } from "react-icons/fi";
+import {
+  FiShoppingCart,
+  FiHeart,
+  FiShare2,
+  FiChevronLeft,
+} from "react-icons/fi";
 import Image from "next/image";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ProductDetail() {
   const [product, setProduct] = useState(null);
@@ -46,6 +53,15 @@ export default function ProductDetail() {
 
   const handleAddToCart = async () => {
     try {
+      // Validate selections
+      if (product.sizes && !selectedSize) {
+        toast.warning("Please select a size");
+        return;
+      }
+      if (product.colors && !selectedColor) {
+        toast.warning("Please select a color");
+        return;
+      }
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: {
@@ -58,23 +74,45 @@ export default function ProductDetail() {
           quantity,
           price: product.price,
         }),
+        credentials: "include",
+        cache: "no-store", // important for session-based auth
+      });
+      console.log("Sending add-to-cart request...");
+      console.log({
+        productId: params.id,
+        size: selectedSize,
+        color: selectedColor,
+        quantity,
+        price: product.price,
       });
 
-      if (!response.ok) throw new Error("Failed to add to cart");
-      alert("Product added to cart successfully!");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to add to cart");
+      }
+
+      toast.success(data.message || "Product added to cart!");
     } catch (err) {
       console.error("Error adding to cart:", err);
-      alert("Failed to add to cart");
+      toast.error(err.message || "Failed to add to cart");
     }
   };
 
-  if (loading) return <div className="p-10 text-center text-gray-600">Loading product...</div>;
-  if (error) return <div className="p-10 text-center text-red-500">Error: {error}</div>;
-  if (!product) return <div className="p-10 text-center text-gray-600">Product not found</div>;
+  if (loading)
+    return (
+      <div className="p-10 text-center text-gray-600">Loading product...</div>
+    );
+  if (error)
+    return <div className="p-10 text-center text-red-500">Error: {error}</div>;
+  if (!product)
+    return (
+      <div className="p-10 text-center text-gray-600">Product not found</div>
+    );
 
   // Helper to parse comma-separated strings into arrays
   const parseAttributes = (str) => {
-    return str ? str.split(",").map(item => item.trim()) : [];
+    return str ? str.split(",").map((item) => item.trim()) : [];
   };
 
   const sizes = parseAttributes(product.sizes);
@@ -84,18 +122,21 @@ export default function ProductDetail() {
   const getImageUrl = (url) => {
     if (!url) return null;
     // For Cloudinary URLs
-    if (url.includes('res.cloudinary.com')) {
+    if (url.includes("res.cloudinary.com")) {
       return url;
     }
     // For local paths
-    return url.startsWith('/') ? url : `/${url}`;
+    return url.startsWith("/") ? url : `/${url}`;
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm py-4 px-6">
         <div className="max-w-7xl mx-auto">
-          <Link href="/" className="flex items-center text-purple-600 hover:text-purple-800">
+          <Link
+            href="/"
+            className="flex items-center text-purple-600 hover:text-purple-800"
+          >
             <FiChevronLeft className="mr-1" /> Continue Shopping
           </Link>
         </div>
@@ -113,7 +154,7 @@ export default function ProductDetail() {
                     alt={product.title || "Product image"}
                     className="w-full h-full object-contain"
                     onError={(e) => {
-                      e.target.src = '/placeholder-product.jpg';
+                      e.target.src = "/placeholder-product.jpg";
                       e.target.onerror = null;
                     }}
                   />
@@ -129,7 +170,7 @@ export default function ProductDetail() {
                       className="w-16 h-16 rounded-md object-cover border-2 border-gray-200 hover:border-purple-500 cursor-pointer"
                       alt={`Product thumbnail ${i}`}
                       onError={(e) => {
-                        e.target.src = '/placeholder-thumbnail.jpg';
+                        e.target.src = "/placeholder-thumbnail.jpg";
                         e.target.onerror = null;
                       }}
                     />
@@ -193,7 +234,9 @@ export default function ProductDetail() {
                           key={color}
                           onClick={() => setSelectedColor(color)}
                           className={`w-8 h-8 rounded-full border-2 ${
-                            selectedColor === color ? "border-purple-500" : "border-gray-300"
+                            selectedColor === color
+                              ? "border-purple-500"
+                              : "border-gray-300"
                           }`}
                           style={{ backgroundColor: color }}
                           title={color}
@@ -206,7 +249,9 @@ export default function ProductDetail() {
 
                 {/* Quantity */}
                 <div className="flex items-center space-x-4">
-                  <h3 className="text-sm font-medium text-gray-900">Quantity</h3>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Quantity
+                  </h3>
                   <div className="flex items-center border rounded-md">
                     <button
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
