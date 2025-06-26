@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+import User from "@/models/user";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
 
@@ -30,7 +30,7 @@ export async function POST(request) {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return Response.json(
-        { message: "Invalid credentials" },
+        { message: "-Invalid credentials" },
         { status: 401 }
       );
     }
