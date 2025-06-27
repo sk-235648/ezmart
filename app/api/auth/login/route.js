@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+import User from "@/models/user";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
 
