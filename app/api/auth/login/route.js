@@ -1,67 +1,45 @@
+// app/api/login/route.js
 import { connectDB } from "@/lib/db";
 import User from "@/models/user";
+<<<<<<< HEAD
 import { SignJWT } from "jose";
+=======
+import jwt from "jsonwebtoken";
+>>>>>>> satyam
 import { cookies } from "next/headers";
+import bcrypt from "bcryptjs";
 
-export async function POST(request) {
+export async function POST(req) {
+  await connectDB();
+
   try {
-    await connectDB();
+    const { email, password } = await req.json();
 
-    const { email, password } = await request.json();
-
-    // Input validation
-    if (!email || !password) {
-      return Response.json(
-        { message: "Email and password are required" },
-        { status: 400 }
-      );
-    }
-
-    // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return Response.json(
-        { message: "Invalid credentials" },
-        { status: 401 }
-      );
+      return Response.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
-    // Compare passwords
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return Response.json(
-        { message: "Invalid credentials" },
-        { status: 401 }
-      );
+      return Response.json({ success: false, message: "Invalid credentials" }, { status: 401 });
     }
 
-    // Create JWT token
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const token = await new SignJWT({ userId: user._id })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("2h")
-      .sign(secret);
+    // ✅ Final check – create JWT with user._id
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    // Set cookie
-    cookies().set({
-      name: "token",
-      value: token,
+    // ✅ Set cookie
+    cookies().set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 2, // 2 hours
+      sameSite: "lax",
       path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
-    return Response.json(
-      { message: "Login successful" },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Login error:", error);
-    return Response.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return Response.json({ success: true, message: "Login successful" });
+  } catch (err) {
+    console.error("Login error:", err);
+    return Response.json({ success: false, message: "Login failed" }, { status: 500 });
   }
 }

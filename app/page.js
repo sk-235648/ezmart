@@ -1,4 +1,4 @@
-
+//app/page.js
 "use client";
 
 import Bigcard from "@/components/cards/Bigcard";
@@ -13,7 +13,7 @@ export default function Home() {
       <Frontpg />
       <Card />
       <Bigcard />
-      <AdminPanel/>
+     
     </>
  
   );

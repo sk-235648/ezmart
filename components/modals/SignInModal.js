@@ -16,7 +16,7 @@ export default function SignInModal({ onClose, showSignUp }) {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_HOST_URL}/api/auth/login/`, {
+      const res = await fetch("/api/auth/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -25,6 +25,8 @@ export default function SignInModal({ onClose, showSignUp }) {
       if (res.ok) {
         // Handle successful login (e.g., close modal, show message, redirect)
         onClose();
+        router.push("/dashboard");
+
         // Optionally: show a toast or set a global auth state
       } else {
         setError(data.message || "Login failed");

@@ -13,13 +13,16 @@
     "cookies-next": "^6.0.0",
     "framer-motion": "^12.7.4",
     "jose": "^6.0.11",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.503.0",
     "mongoose": "^8.16.0",
     "next": "15.3.0",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "recharts": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
