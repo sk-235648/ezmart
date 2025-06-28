@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { FiX, FiUser } from "react-icons/fi";
 import { useRouter } from "next/navigation";
-import { setCookie } from "cookies-next";
 
 export default function SignInModal({ onClose, showSignUp }) {
   const [email, setEmail] = useState("");
@@ -10,29 +9,32 @@ export default function SignInModal({ onClose, showSignUp }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
     try {
-      const res = await fetch("/api/auth/login/", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        // Handle successful login (e.g., close modal, show message, redirect)
-        onClose();
-        router.push("/dashboard");
 
-        // Optionally: show a toast or set a global auth state
-      } else {
-        setError(data.message || "Login failed");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
       }
+
+      // Login successful
+      onClose();
+      router.refresh(); // Refresh to update auth state
+      router.push("/"); // Redirect to dashboard
+      
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,10 +67,7 @@ export default function SignInModal({ onClose, showSignUp }) {
                 placeholder="Email address"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  console.log("Email:", e.target.value);
-                }}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <input
@@ -76,16 +75,15 @@ export default function SignInModal({ onClose, showSignUp }) {
                 placeholder="Password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  console.log("Password:", e.target.value);
-                }}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {error && <div className="text-red-500 text-sm">{error}</div>}
+              {error && (
+                <div className="text-red-500 text-sm text-left">{error}</div>
+              )}
               <button
                 type="submit"
-                className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-70"
                 disabled={loading}
               >
                 {loading ? "Signing In..." : "Sign In"}

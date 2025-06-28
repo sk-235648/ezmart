@@ -25,7 +25,8 @@ export default function SignUpModal({ onClose, showSignIn }) {
 
       // Validate passwords on change
       const match = updated.password !== updated.confirmPassword;
-      const tooShort = updated.password.length > 0 && updated.password.length < 8;
+      const tooShort =
+        updated.password.length > 0 && updated.password.length < 8;
       setErrors({
         passwordMatch: match,
         passwordLength: tooShort,
@@ -35,13 +36,29 @@ export default function SignUpModal({ onClose, showSignIn }) {
     });
   };
 
+  // Update the handleSubmit function:
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (errors.passwordMatch || errors.passwordLength) return;
+    // Additional validation checks
+    if (formData.password !== formData.confirmPassword) {
+      setErrors({
+        ...errors,
+        passwordMatch: true,
+      });
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setErrors({
+        ...errors,
+        passwordLength: true,
+      });
+      return;
+    }
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/auth/Signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -50,8 +67,6 @@ export default function SignUpModal({ onClose, showSignIn }) {
           password: formData.password,
         }),
       });
-      
-      
 
       const data = await res.json();
 

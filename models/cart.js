@@ -1,6 +1,8 @@
 // models/cart.js
 import mongoose from 'mongoose';
+import { connectDB } from '@/lib/db';
 
+const conn = await connectDB('ezmart-admin');
 const cartItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -112,4 +114,6 @@ cartSchema.statics = {
   }
 };
 
-export default mongoose.models.Cart || mongoose.model('Cart', cartSchema);
+const Cart = conn.models.Cart || conn.model('Cart', cartSchema);
+
+export default Cart;

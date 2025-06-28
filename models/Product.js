@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import { connectDB } from "@/lib/db";
 
+const conn = await connectDB('ezmart-admin');
 const productSchema = new mongoose.Schema(
   {
     title: { type: String, required: true }, // Added title field
@@ -19,4 +21,6 @@ const productSchema = new mongoose.Schema(
 // Create text index for searching if needed
 productSchema.index({ title: 'text', category: 'text' });
 
-export default mongoose.models.Product || mongoose.model("Product", productSchema);
+const Product = conn.models.Product || conn.model('Product', productSchema);
+
+export default Product;

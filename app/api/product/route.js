@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    await connectDB();
+    await connectDB("ezmart-admin");
     const products = await Product.find().sort({ _id: -1 });
     return NextResponse.json(products);
   } catch (error) {

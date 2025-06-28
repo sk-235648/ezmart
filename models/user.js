@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { connectDB } from '@/lib/db';
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -18,4 +19,8 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-export default mongoose.models.User || mongoose.model('User', userSchema);
+// Export a function that returns the model
+export default async function getUserModel() {
+  const conn = await connectDB('ezmart');
+  return conn.models.User || conn.model('User', userSchema);
+}

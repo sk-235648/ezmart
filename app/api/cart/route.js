@@ -5,7 +5,7 @@ import Product from "@/models/Product";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET() {
-  await connectDB();
+  await connectDB("ezmart-admin");
 
   try {
     const { userId } = await verifyToken();
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function POST(req) {
-  await connectDB();
+  await connectDB("ezmart-admin");
 
   try {
     const { productId, size, color, quantity, price } = await req.json();
@@ -64,7 +64,7 @@ export async function POST(req) {
 }
 
 export async function PUT(req) {
-  await connectDB();
+  await connectDB("ezmart-admin");
 
   try {
     const { userId } = await verifyToken();
@@ -91,7 +91,7 @@ export async function PUT(req) {
 }
 
 export async function DELETE(req) {
-  await connectDB();
+  await connectDB("ezmart-admin");
 
   try {
     const { userId } = await verifyToken();

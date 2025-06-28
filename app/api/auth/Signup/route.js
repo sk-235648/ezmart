@@ -1,5 +1,4 @@
-import { connectDB } from '@/lib/db';
-import User from '@/models/user.js';
+import getUserModel from '@/models/user';
 
 export async function POST(req) {
   try {
@@ -7,17 +6,26 @@ export async function POST(req) {
     const { name, email, password } = body;
 
     if (!name || !email || !password) {
-      return new Response(JSON.stringify({ message: "All fields are required-" }), {
+      return new Response(JSON.stringify({ message: "All fields are required" }), {
         status: 400,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    await connectDB();
+    if (password.length < 8) {
+      return new Response(JSON.stringify({ message: "Password must be at least 8 characters" }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
+    const User = await getUserModel();
     const existingUser = await User.findOne({ email });
+    
     if (existingUser) {
       return new Response(JSON.stringify({ message: "User already exists" }), {
         status: 400,
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
@@ -26,12 +34,14 @@ export async function POST(req) {
 
     return new Response(JSON.stringify({ message: "User registered successfully" }), {
       status: 201,
+      headers: { 'Content-Type': 'application/json' },
     });
 
   } catch (err) {
     console.error("Signup error:", err);
     return new Response(JSON.stringify({ message: "Server error" }), {
       status: 500,
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
