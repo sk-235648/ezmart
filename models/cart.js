@@ -1,8 +1,8 @@
-// models/cart.js
 import mongoose from 'mongoose';
 import { connectDB } from '@/lib/db';
 
-const conn = await connectDB('ezmart-admin');
+const conn = await connectDB('ezmart'); // Changed to 'ezmart' database
+
 const cartItemSchema = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -15,24 +15,19 @@ const cartItemSchema = new mongoose.Schema({
     min: 1,
     default: 1
   },
-  color: {
-    type: String,
-    required: false
-  },
-  size: {
-    type: String,
-    required: false
-  },
+  color: String,
+  size: String,
   price: {
     type: Number,
     required: true
-  }
+  },
+  image: String, // Added image field
+  name: String   // Added name field for quick access
 }, { _id: false });
 
 const cartSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
     required: true,
     unique: true
   },
@@ -47,67 +42,64 @@ const cartSchema = new mongoose.Schema({
   }
 });
 
-// Auto-update updatedAt
-cartSchema.pre('save', function (next) {
+// Update timestamp on save
+cartSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
 // Static methods
 cartSchema.statics = {
-  async getCartByUserId(userId) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    return this.findOne({ userId: userObjectId })
-      .populate('items.productId', 'title images price');
+  async getCart(userId) {
+    return this.findOne({ userId })
+      .populate('productId', 'name price images');
   },
 
-  async addItemToCart(userId, productData) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const productObjectId = new mongoose.Types.ObjectId(productData.productId);
+  async addItem(userId, itemData) {
+    // Get product details first
+    const Product = conn.model('Product');
+    const product = await Product.findById(itemData.productId);
+    
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    const cartItem = {
+      productId: itemData.productId,
+      quantity: itemData.quantity,
+      color: itemData.color,
+      size: itemData.size,
+      price: product.price,
+      image: product.images[0], // Store first image
+      name: product.name        // Store product name
+    };
 
     return this.findOneAndUpdate(
-      { userId: userObjectId },
-      {
-        $push: {
-          items: {
-            productId: productObjectId,
-            quantity: productData.quantity,
-            color: productData.color,
-            size: productData.size,
-            price: productData.price
-          }
-        }
-      },
+      { userId },
+      { $push: { items: cartItem } },
       { new: true, upsert: true }
-    ).populate('items.productId', 'title images price');
+    );
   },
 
-  async updateItemQuantity(userId, productId, newQuantity) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const productObjectId = new mongoose.Types.ObjectId(productId);
-
+  async updateQuantity(userId, productId, quantity) {
     return this.findOneAndUpdate(
-      { userId: userObjectId, 'items.productId': productObjectId },
-      { $set: { 'items.$.quantity': newQuantity } },
+      { userId, 'items.productId': productId },
+      { $set: { 'items.$.quantity': quantity } },
       { new: true }
-    ).populate('items.productId', 'title images price');
+    );
   },
 
-  async removeItemFromCart(userId, productId) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const productObjectId = new mongoose.Types.ObjectId(productId);
-
+  async removeItem(userId, productId) {
     return this.findOneAndUpdate(
-      { userId: userObjectId },
-      { $pull: { items: { productId: productObjectId } } },
+      { userId },
+      { $pull: { items: { productId } } },
       { new: true }
-    ).populate('items.productId', 'title images price');
+    );
   },
 
   async clearCart(userId) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
     return this.findOneAndUpdate(
-      { userId: userObjectId },
+      { userId },
       { $set: { items: [] } },
       { new: true }
     );
@@ -115,5 +107,4 @@ cartSchema.statics = {
 };
 
 const Cart = conn.models.Cart || conn.model('Cart', cartSchema);
-
 export default Cart;
