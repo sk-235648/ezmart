@@ -35,7 +35,7 @@ export default function ProductDetail() {
         if (!data) throw new Error("Product not found");
 
         setProduct(data);
-        // Initialize with first available size and color if they exist
+        // Initialize with first available size & color if they exist
         if (data.sizes) {
           const sizesArray = data.sizes.split(",");
           setSelectedSize(sizesArray[0].trim());
