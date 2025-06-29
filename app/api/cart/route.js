@@ -46,3 +46,31 @@ export async function POST(req) {
     );
   }
 }
+export async function GET() {
+  await connectDB("ezmart");
+
+  try {
+    const { userId } = await verifyToken();
+    
+    // Find cart and populate product details if needed
+    const cart = await Cart.findOne({ userId }).lean(); // .lean() for better performance
+    
+    if (!cart) {
+      return Response.json({
+        success: true,
+        cart: { items: [] } // Return empty cart if not found
+      });
+    }
+
+    return Response.json({
+      success: true,
+      cart
+    });
+  } catch (err) {
+    console.error("Cart GET error:", err);
+    return Response.json(
+      { success: false, message: "Error fetching cart" },
+      { status: 500 }
+    );
+  }
+}
