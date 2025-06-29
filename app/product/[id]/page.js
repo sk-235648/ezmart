@@ -1,3 +1,4 @@
+//product/[id]/page.js
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -53,54 +54,55 @@ export default function ProductDetail() {
     if (params.id) fetchProduct();
   }, [params.id]);
 
-  const handleAddToCart = async (redirectToCheckout = false) => {
-    try {
-      setIsAddingToCart(true);
-      
-      // Validate selections
-      if (product.sizes && !selectedSize) {
-        toast.warning("Please select a size");
-        return;
-      }
-      if (product.colors && !selectedColor) {
-        toast.warning("Please select a color");
-        return;
-      }
-
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId: params.id,
-          size: selectedSize,
-          color: selectedColor,
-          quantity,
-          price: product.price,
-          name: product.title, // Include product name
-          image: product.images?.[0] || null // Include first image
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add to cart");
-      }
-
-      toast.success("Product added to cart!");
-      
-      if (redirectToCheckout) {
-        router.push("/checkout");
-      }
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      toast.error(err.message || "Failed to add to cart");
-    } finally {
-      setIsAddingToCart(false);
+ const handleAddToCart = async (redirectToCheckout = false) => {
+  try {
+    setIsAddingToCart(true);
+    
+    // Validate selections
+    if (product.sizes && !selectedSize) {
+      toast.warning("Please select a size");
+      return;
     }
-  };
+    if (product.colors && !selectedColor) {
+      toast.warning("Please select a color");
+      return;
+    }
+
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        productId: params.id,
+        size: selectedSize,
+        color: selectedColor,
+        quantity,
+        price: product.price,
+        name: product.title, // Changed from 'name' to 'title' to match your product model
+        image: product.images?.[0] || null
+      }),
+      credentials: "include" // Important for cookies
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to add to cart");
+    }
+
+    toast.success("Product added to cart!");
+    
+    if (redirectToCheckout) {
+      router.push("/checkout");
+    }
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    toast.error(err.message || "Failed to add to cart");
+  } finally {
+    setIsAddingToCart(false);
+  }
+};
 
   const handleBuyNow = () => {
     handleAddToCart(true);
@@ -189,11 +191,7 @@ export default function ProductDetail() {
                   <span className="text-2xl font-bold text-purple-600">
                     ₹{product.price?.toLocaleString() || "N/A"}
                   </span>
-                  {product.expenses && (
-                    <span className="text-gray-600 ml-2 text-sm">
-                      (Cost: ₹{product.expenses?.toLocaleString()})
-                    </span>
-                  )}
+                  
                 </div>
               </div>
 
