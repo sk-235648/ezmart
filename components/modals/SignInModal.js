@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { FiX, FiUser } from "react-icons/fi";
+import { useRouter } from "next/navigation";
 
 export default function SignInModal({ onClose, showSignUp }) {
   const [email, setEmail] = useState("");
@@ -12,18 +13,14 @@ export default function SignInModal({ onClose, showSignUp }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const cookie = getCookie("user");
-    setIsLoggedIn(!!cookie);
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    setError("");
 
     try {
-      const res = await fetch("/api/auth/login/", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -31,23 +28,17 @@ export default function SignInModal({ onClose, showSignUp }) {
 
       const data = await res.json();
 
-      if (res.ok && data.user) {
-        setCookie(
-          "user",
-          JSON.stringify({
-            name: data.user.name,
-            avatar: data.user.avatar || "/default-avatar.png",
-          }),
-          { path: "/" }
-        );
-        window.dispatchEvent(new Event("userLoggedIn"));
-        onClose();
-        router.push("/");
-      } else {
-        setError(data.message || "Invalid credentials");
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
       }
+
+      // Login successful
+      onClose();
+      router.refresh(); // Refresh to update auth state
+      router.push("/"); // Redirect to dashboard
+      
     } catch (err) {
-      setError("Something went wrong");
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -82,6 +73,7 @@ export default function SignInModal({ onClose, showSignUp }) {
               <input
                 type="email"
                 value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
@@ -90,15 +82,18 @@ export default function SignInModal({ onClose, showSignUp }) {
               <input
                 type="password"
                 value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-200 outline-none"
               />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-
+              {error && (
+                <div className="text-red-500 text-sm text-left">{error}</div>
+              )}
               <button
                 type="submit"
+                className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-70"
                 disabled={loading}
                 className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700"
               >

@@ -1,8 +1,8 @@
-// app/product/[id]/page.js
+//product/[id]/page.js
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   FiShoppingCart,
   FiHeart,
@@ -20,7 +20,9 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const params = useParams();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchProduct() {
@@ -33,7 +35,7 @@ export default function ProductDetail() {
         if (!data) throw new Error("Product not found");
 
         setProduct(data);
-        // Initialize with first available size and color
+        // Initialize with first available size and color if they exist
         if (data.sizes) {
           const sizesArray = data.sizes.split(",");
           setSelectedSize(sizesArray[0].trim());
@@ -52,52 +54,58 @@ export default function ProductDetail() {
     if (params.id) fetchProduct();
   }, [params.id]);
 
-  const handleAddToCart = async () => {
-    try {
-      // Validate selections
-      if (product.sizes && !selectedSize) {
-        toast.warning("Please select a size");
-        return;
-      }
-      if (product.colors && !selectedColor) {
-        toast.warning("Please select a color");
-        return;
-      }
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId: params.id,
-          size: selectedSize,
-          color: selectedColor,
-          quantity,
-          price: product.price,
-        }),
-        credentials: "include",
-        cache: "no-store", // important for session-based auth
-      });
-      console.log("Sending add-to-cart request...");
-      console.log({
+ const handleAddToCart = async (redirectToCheckout = false) => {
+  try {
+    setIsAddingToCart(true);
+    
+    // Validate selections
+    if (product.sizes && !selectedSize) {
+      toast.warning("Please select a size");
+      return;
+    }
+    if (product.colors && !selectedColor) {
+      toast.warning("Please select a color");
+      return;
+    }
+
+    const response = await fetch("/api/cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         productId: params.id,
         size: selectedSize,
         color: selectedColor,
         quantity,
         price: product.price,
-      });
+        name: product.title, // Changed from 'name' to 'title' to match your product model
+        image: product.images?.[0] || null
+      }),
+      credentials: "include" // Important for cookies
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to add to cart");
-      }
-
-      toast.success(data.message || "Product added to cart!");
-    } catch (err) {
-      console.error("Error adding to cart:", err);
-      toast.error(err.message || "Failed to add to cart");
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to add to cart");
     }
+
+    toast.success("Product added to cart!");
+    
+    if (redirectToCheckout) {
+      router.push("/checkout");
+    }
+  } catch (err) {
+    console.error("Error adding to cart:", err);
+    toast.error(err.message || "Failed to add to cart");
+  } finally {
+    setIsAddingToCart(false);
+  }
+};
+
+  const handleBuyNow = () => {
+    handleAddToCart(true);
   };
 
   if (loading)
@@ -118,17 +126,6 @@ export default function ProductDetail() {
 
   const sizes = parseAttributes(product.sizes);
   const colors = parseAttributes(product.colors);
-
-  // Function to handle image URLs
-  const getImageUrl = (url) => {
-    if (!url) return null;
-    // For Cloudinary URLs
-    if (url.includes("res.cloudinary.com")) {
-      return url;
-    }
-    // For local paths
-    return url.startsWith("/") ? url : `/${url}`;
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -151,8 +148,10 @@ export default function ProductDetail() {
               <div className="bg-gray-100 rounded-lg overflow-hidden h-96 flex items-center justify-center">
                 {product.images?.[0] ? (
                   <img
-                    src={getImageUrl(product.images[0])}
+                    src={product.images[0]}
                     alt={product.title || "Product image"}
+                    width={500}
+                    height={500}
                     className="w-full h-full object-contain"
                     onError={(e) => {
                       e.target.src = "/placeholder-product.jpg";
@@ -167,8 +166,10 @@ export default function ProductDetail() {
                 {product.images?.map((img, i) => (
                   <div key={i} className="flex-shrink-0">
                     <img
-                      src={getImageUrl(img)}
-                      className="w-16 h-16 rounded-md object-cover border-2 border-gray-200 hover:border-purple-500 cursor-pointer"
+                      src={img}
+                      width={64}
+                      height={64}
+                      className="rounded-md object-cover border-2 border-gray-200 hover:border-purple-500 cursor-pointer"
                       alt={`Product thumbnail ${i}`}
                       onError={(e) => {
                         e.target.src = "/placeholder-thumbnail.jpg";
@@ -190,11 +191,7 @@ export default function ProductDetail() {
                   <span className="text-2xl font-bold text-purple-600">
                     ₹{product.price?.toLocaleString() || "N/A"}
                   </span>
-                  {product.expenses && (
-                    <span className="text-gray-600 ml-2 text-sm">
-                      (Cost: ₹{product.expenses?.toLocaleString()})
-                    </span>
-                  )}
+                  
                 </div>
               </div>
 
@@ -275,17 +272,26 @@ export default function ProductDetail() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
                 <button
-                  onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition-colors"
+                  onClick={() => handleAddToCart(false)}
+                  disabled={isAddingToCart}
+                  className={`flex-1 flex items-center justify-center bg-purple-600 text-white py-3 px-6 rounded-md hover:bg-purple-700 transition-colors ${
+                    isAddingToCart ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
-                  <FiShoppingCart className="mr-2" /> Add to Cart
+                  {isAddingToCart ? (
+                    "Adding..."
+                  ) : (
+                    <>
+                      <FiShoppingCart className="mr-2" /> Add to Cart
+                    </>
+                  )}
                 </button>
                 <button
-                  onClick={() => {
-                    handleAddToCart();
-                    window.location.href = "/checkout";
-                  }}
-                  className="flex-1 bg-slate-800 text-white py-3 px-6 rounded-md hover:bg-black transition-colors"
+                  onClick={handleBuyNow}
+                  disabled={isAddingToCart}
+                  className={`flex-1 bg-slate-800 text-white py-3 px-6 rounded-md hover:bg-black transition-colors ${
+                    isAddingToCart ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
                   Buy Now
                 </button>

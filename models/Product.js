@@ -1,8 +1,12 @@
 import mongoose from "mongoose";
+import { connectDB } from "@/lib/db";
+
+// Connect to ezmart database for product operations
+const conn = await connectDB('ezmart');
 
 const productSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true }, // Added title field
+    title: { type: String, required: true },
     price: { type: Number, required: true },
     expenses: { type: Number, required: true },
     images: { type: [String], required: true },
@@ -12,11 +16,12 @@ const productSchema = new mongoose.Schema(
   },
   { 
     collection: "products",
-    timestamps: true // Optional: adds createdAt and updatedAt fields
+    timestamps: true
   }
 );
 
-// Create text index for searching if needed
 productSchema.index({ title: 'text', category: 'text' });
 
-export default mongoose.models.Product || mongoose.model("Product", productSchema);
+const Product = conn.models.Product || conn.model('Product', productSchema);
+
+export default Product;
