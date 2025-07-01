@@ -1,4 +1,4 @@
-
+//cart/page.js
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -26,30 +26,31 @@ export default function CartPage() {
     window.addEventListener("cartUpdated", handleCartUpdate);
     return () => window.removeEventListener("cartUpdated", handleCartUpdate);
   }, []);
+const fetchCart = async () => {
+  try {
+    setLoading(true);
+    const res = await fetch("/api/cart", {
+      credentials: "include"
+    });
 
-  const fetchCart = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/cart", {
-        credentials: "include"
-      });
-      
-      const data = await res.json();
+    const data = await res.json();
+    console.log("🛒 Cart GET response:", data); // ✅ Add this
 
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to load cart");
-      }
-
-      setCart({
-        items: data.cart?.items || []
-      });
-    } catch (error) {
-      toast.error(error.message || "Error loading cart");
-      setCart({ items: [] });
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to load cart");
     }
-  };
+
+    setCart({
+      items: data.cart?.items || []
+    });
+  } catch (error) {
+    toast.error(error.message || "Error loading cart");
+    setCart({ items: [] });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
@@ -165,7 +166,6 @@ export default function CartPage() {
                       <img
                         src={itemImage}
                         alt={itemName}
-                        fill
                         className="object-cover rounded"
                         onError={(e) => {
                           e.target.src = "/placeholder-product.png";
