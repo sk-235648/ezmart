@@ -5,7 +5,7 @@ import Product from "@/models/Product";
 import { verifyToken } from "@/lib/auth";
 
 export async function GET() {
-  await connectDB();
+  await connectDB("ezmart-admin");
 
   try {
     const { userId } = await verifyToken();

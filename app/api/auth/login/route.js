@@ -1,11 +1,7 @@
 // app/api/login/route.js
 import { connectDB } from "@/lib/db";
 import User from "@/models/user";
-<<<<<<< HEAD
-import { SignJWT } from "jose";
-=======
 import jwt from "jsonwebtoken";
->>>>>>> satyam
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 

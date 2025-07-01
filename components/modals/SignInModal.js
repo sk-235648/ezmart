@@ -1,107 +1,126 @@
 "use client";
-import { useState } from "react";
-import { FiX, FiUser } from "react-icons/fi";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { setCookie } from "cookies-next";
+import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { FiX, FiUser } from "react-icons/fi";
 
 export default function SignInModal({ onClose, showSignUp }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
- 
+
+  useEffect(() => {
+    const cookie = getCookie("user");
+    setIsLoggedIn(!!cookie);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setLoading(true);
+
     try {
       const res = await fetch("/api/auth/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
-      if (res.ok) {
-        // Handle successful login (e.g., close modal, show message, redirect)
-        onClose();
-        router.push("/dashboard");
 
-        // Optionally: show a toast or set a global auth state
+      const data = await res.json();
+
+      if (res.ok && data.user) {
+        setCookie(
+          "user",
+          JSON.stringify({
+            name: data.user.name,
+            avatar: data.user.avatar || "/default-avatar.png",
+          }),
+          { path: "/" }
+        );
+        window.dispatchEvent(new Event("userLoggedIn"));
+        onClose();
+        router.push("/");
       } else {
-        setError(data.message || "Login failed");
+        setError(data.message || "Invalid credentials");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = () => {
+    deleteCookie("user");
+    window.dispatchEvent(new Event("userLoggedOut"));
+    onClose();
+    router.refresh?.();
+  };
+
   return (
     <>
-      <div className="fixed inset-0 z-40 backdrop-blur-[2px] bg-white/10"></div>
+      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-lg shadow-xl border border-gray-200 w-full max-w-sm p-6">
-          <button
-            onClick={onClose}
-            className="absolute cursor-pointer -top-10 -right-2 p-2 text-purple-500 hover:text-purple-600"
-          >
-            <FiX className="h-6 w-6 hover:scale-110 transition-all duration-200" />
+        <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+          <button onClick={onClose} className="absolute top-2 right-2 text-purple-500">
+            <FiX className="w-5 h-5" />
           </button>
 
-          <div className="text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
-              <FiUser className="h-6 w-6 text-purple-600" />
+          <div className="flex justify-center mb-4">
+            <div className="bg-purple-100 p-3 rounded-full">
+              <FiUser className="text-purple-600 h-6 w-6" />
             </div>
+          </div>
 
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Sign in to your account
-            </h3>
+          <h2 className="text-center text-lg font-semibold text-gray-800">Sign In</h2>
 
+          {!isLoggedIn && (
             <form onSubmit={handleSubmit} className="mt-4 space-y-3">
               <input
                 type="email"
-                placeholder="Email address"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  console.log("Email:", e.target.value);
-                }}
                 required
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-200 outline-none"
               />
               <input
                 type="password"
-                placeholder="Password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  console.log("Password:", e.target.value);
-                }}
                 required
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-200 outline-none"
               />
-              {error && <div className="text-red-500 text-sm">{error}</div>}
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
               <button
                 type="submit"
-                className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                 disabled={loading}
+                className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700"
               >
                 {loading ? "Signing In..." : "Sign In"}
               </button>
             </form>
+          )}
 
-            <p className="mt-3 text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <button
-                onClick={showSignUp}
-                className="text-purple-600 hover:text-purple-500"
-              >
-                Sign up
+          <p className="text-sm text-center mt-4 text-gray-500">
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="text-purple-600 font-medium hover:underline">
+                Logout
               </button>
-            </p>
-          </div>
+            ) : (
+              <>
+                Don't have an account?{" "}
+                <button onClick={showSignUp} className="text-purple-600 font-medium hover:underline">
+                  Sign Up
+                </button>
+              </>
+            )}
+          </p>
         </div>
       </div>
     </>
