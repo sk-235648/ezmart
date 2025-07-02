@@ -16,6 +16,25 @@ export async function POST(req) {
       );
     }
 
+    // Check if the item already exists in the cart
+    const existingCart = await Cart.findOne({ userId });
+    
+    if (existingCart) {
+      // Check if an item with the same productId, color, and size already exists
+      const existingItem = existingCart.items.find(item => 
+        item.productId.toString() === productId &&
+        item.color === color &&
+        item.size === size
+      );
+      
+      if (existingItem) {
+        return Response.json({
+          success: false,
+          message: "This item is already in your cart"
+        }, { status: 400 });
+      }
+    }
+
     const cart = await Cart.findOneAndUpdate(
       { userId },
       { 
