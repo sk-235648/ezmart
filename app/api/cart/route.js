@@ -1,3 +1,4 @@
+//api/cart/route.js
 import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 import mongoose from "mongoose";
@@ -8,10 +9,9 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { productId, quantity = 1, color, size, price, name, image, storedUserId } = body;
+    const { productId, quantity = 1, color, size, price, name, image } = body;
     
     console.log("Cart POST received:", { productId, quantity, color, size, price, name });
-    if (storedUserId) console.log("Received storedUserId:", storedUserId);
 
     if (!productId) {
       return Response.json(
@@ -20,28 +20,8 @@ export async function POST(req) {
       );
     }
 
-    // Get user ID from token
-    let userId;
-    try {
-      const tokenData = await verifyToken();
-      userId = tokenData.userId;
-      console.log("Token userId:", userId);
-    } catch (tokenError) {
-      // If no token, use storedUserId if available
-      if (!storedUserId) {
-        return Response.json(
-          { success: false, message: "Authentication required", isAuthenticated: false },
-          { status: 401 }
-        );
-      }
-      userId = storedUserId;
-    }
-    
-    // Use stored user ID if available and different from token ID
-    const finalUserId = storedUserId || userId;
-    console.log("Using finalUserId:", finalUserId);
-    
-    const userObjectId = new mongoose.Types.ObjectId(finalUserId);
+    const { userId } = await verifyToken();
+    const userObjectId = new mongoose.Types.ObjectId(userId);
     const productObjectId = new mongoose.Types.ObjectId(productId);
 
     // Find the user's cart or create a new one if it doesn't exist
@@ -52,7 +32,7 @@ export async function POST(req) {
       // Check if this product (with same color and size) already exists in cart
       const existingItemIndex = cart.items.findIndex(
         (item) =>
-          item.productId.toString() === productId.toString() &&
+          item.productId.toString() === productId &&
           item.color === color &&
           item.size === size
       );
@@ -102,23 +82,11 @@ export async function POST(req) {
     const updatedCart = await Cart.findOne({ userId: userObjectId }).lean();
     console.log("Updated cart items count:", updatedCart.items.length);
 
-    // Prepare response
-    const response = Response.json({
+    return Response.json({
       success: true,
       cart: updatedCart,
-      userId: finalUserId,
       message: "Cart updated",
     });
-
-    // Set userId cookie for guest users
-    if (storedUserId && (!userId || storedUserId !== userId)) {
-      response.headers.set(
-        'Set-Cookie',
-        `userId=${finalUserId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${60 * 60 * 24 * 7}` // 1 week
-      );
-    }
-
-    return response;
   } catch (err) {
     console.error("Cart POST error:", err);
     return Response.json(
@@ -128,89 +96,58 @@ export async function POST(req) {
   }
 }
 
-export async function GET(req) {
+export async function GET() {
   await connectDB("ezmart");
 
   try {
-    let userId;
-    let isAuthenticated = true;
-
-    try {
-      const tokenData = await verifyToken();
-      userId = tokenData.userId;
-      console.log("GET: Token userId:", userId);
-    } catch (tokenError) {
-      isAuthenticated = false;
-      // For unauthenticated users, try to get userId from cookie
-      const cookieHeader = req.headers.get('cookie');
-      const cookies = new Map(
-        cookieHeader?.split(';').map(c => {
-          const [key, val] = c.trim().split('=');
-          return [key, val];
-        }) || []
-      );
-      userId = cookies.get('userId');
-      console.log("GET: Cookie userId:", userId);
-    }
-
-    // Try to get userId from query params as fallback
-    if (!userId) {
-      const url = new URL(req.url);
-      userId = url.searchParams.get('userId');
-      console.log("GET: Query param userId:", userId);
-    }
-
-    if (!userId) {
-      console.log("GET: No userId found, returning empty cart");
-      return Response.json({
-        success: true,
-        cart: { items: [] },
-        isAuthenticated: false
-      });
-    }
-
+    const { userId } = await verifyToken();
     const userObjectId = new mongoose.Types.ObjectId(userId);
-    console.log("GET: Fetching cart for userId:", userId);
 
-    // Try to find cart
-    let cart = await Cart.findOne({ userId: userObjectId }).lean();
+    console.log("👉 Fetching cart for:", userObjectId);
 
-    // If no cart found, return empty
+    // Use populate to get product details
+    let cart = await Cart.findOne({ userId: userObjectId })
+      .lean();
+
+    console.log("Raw cart from DB:", cart);
+
+    // If no cart exists for this user, create an empty one
     if (!cart) {
-      console.log("GET: No cart found - returning empty");
-      return Response.json({
-        success: true,
-        cart: { items: [] },
-        userId,
-        isAuthenticated
+      console.log("Creating empty cart for user");
+      cart = { items: [] };
+    } else {
+      // Log each item in the cart for debugging
+      console.log("Cart items found:", cart.items.length);
+      cart.items.forEach((item, index) => {
+        console.log(`Item ${index + 1}:`, {
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        });
       });
     }
 
-    console.log("GET: Found cart with items:", cart.items.length);
-    // Log each item for debugging
-    cart.items.forEach((item, index) => {
-      console.log(`GET: Item ${index}:`, {
-        productId: item.productId.toString(),
-        name: item.name,
-        quantity: item.quantity
-      });
-    });
+    console.log("🛒 Cart from DB:", JSON.stringify(cart, null, 2));
 
     return Response.json({
       success: true,
       cart,
-      userId,
-      isAuthenticated
     });
-
   } catch (err) {
     console.error("❌ Cart GET error:", err);
-    return Response.json(
-      { 
-        success: false, 
-        message: err.message || "Error fetching cart",
+    
+    // For authentication errors, return an empty cart with auth status
+    if (err.message === "No token found" || err.message === "Invalid token") {
+      return Response.json({
+        success: true,
+        cart: { items: [] },
         isAuthenticated: false
-      },
+      });
+    }
+    
+    return Response.json(
+      { success: false, message: "Error fetching cart" },
       { status: 500 }
     );
   }
@@ -220,27 +157,16 @@ export async function DELETE(req) {
   await connectDB("ezmart");
 
   try {
+    // Try to get user ID with better error handling
     let userId;
     try {
       const tokenData = await verifyToken();
       userId = tokenData.userId;
     } catch (tokenError) {
-      // For unauthenticated users, try to get userId from cookie
-      const cookieHeader = req.headers.get('cookie');
-      const cookies = new Map(
-        cookieHeader?.split(';').map(c => {
-          const [key, val] = c.trim().split('=');
-          return [key, val];
-        }) || []
+      return Response.json(
+        { success: false, message: "Authentication required", isAuthenticated: false },
+        { status: 401 }
       );
-      userId = cookies.get('userId');
-      
-      if (!userId) {
-        return Response.json(
-          { success: false, message: "Authentication required", isAuthenticated: false },
-          { status: 401 }
-        );
-      }
     }
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
@@ -273,73 +199,6 @@ export async function DELETE(req) {
     });
   } catch (err) {
     console.error("Cart DELETE error:", err);
-    return Response.json(
-      { success: false, message: err.message || "Server error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(req) {
-  await connectDB("ezmart");
-
-  try {
-    let userId;
-    try {
-      const tokenData = await verifyToken();
-      userId = tokenData.userId;
-    } catch (tokenError) {
-      // For unauthenticated users, try to get userId from cookie
-      const cookieHeader = req.headers.get('cookie');
-      const cookies = new Map(
-        cookieHeader?.split(';').map(c => {
-          const [key, val] = c.trim().split('=');
-          return [key, val];
-        }) || []
-      );
-      userId = cookies.get('userId');
-      
-      if (!userId) {
-        return Response.json(
-          { success: false, message: "Authentication required", isAuthenticated: false },
-          { status: 401 }
-        );
-      }
-    }
-
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-    const { productId, quantity } = await req.json();
-
-    if (!productId || !quantity) {
-      return Response.json(
-        { success: false, message: "Product ID and quantity are required" },
-        { status: 400 }
-      );
-    }
-
-    const cart = await Cart.findOneAndUpdate(
-      { 
-        userId: userObjectId,
-        "items.productId": new mongoose.Types.ObjectId(productId)
-      },
-      { $set: { "items.$.quantity": quantity } },
-      { new: true }
-    );
-
-    if (!cart) {
-      return Response.json(
-        { success: false, message: "Item not found in cart" },
-        { status: 404 }
-      );
-    }
-
-    return Response.json({
-      success: true,
-      cart,
-      message: "Cart item quantity updated",
-    });
-  } catch (err) {
-    console.error("Cart PUT error:", err);
     return Response.json(
       { success: false, message: err.message || "Server error" },
       { status: 500 }

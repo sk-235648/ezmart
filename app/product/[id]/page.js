@@ -68,10 +68,6 @@ export default function ProductDetail() {
       return;
     }
 
-    // Get stored userId if available
-    const storedUserId = localStorage.getItem('userId');
-    console.log("Adding to cart with storedUserId:", storedUserId);
-
     const response = await fetch("/api/cart", {
       method: "POST",
       headers: {
@@ -83,28 +79,17 @@ export default function ProductDetail() {
         color: selectedColor,
         quantity,
         price: product.price,
-        name: product.title, // Using title to match product model
-        image: product.images?.[0] || null,
-        storedUserId // Include this to help with user ID consistency
+        name: product.title, // Changed from 'name' to 'title' to match your product model
+        image: product.images?.[0] || null
       }),
       credentials: "include" // Important for cookies
     });
 
     const data = await response.json();
-    console.log("Add to cart response:", data);
-
-    // Store the userId if it's in the response
-    if (data.userId) {
-      localStorage.setItem('userId', data.userId);
-      console.log("Stored userId from add to cart:", data.userId);
-    }
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to add to cart");
     }
-
-    // Dispatch event to notify other components
-    window.dispatchEvent(new Event('cartUpdated'));
 
     toast.success("Product added to cart!");
     

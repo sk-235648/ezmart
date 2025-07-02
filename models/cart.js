@@ -60,14 +60,15 @@ cartSchema.statics = {
       throw new Error('Product not found');
     }
 
+
     const cartItem = {
       productId: itemData.productId,
       quantity: itemData.quantity,
       color: itemData.color,
       size: itemData.size,
-      price: itemData.price || product.price,
-      image: itemData.image || (product.images && product.images[0]),
-      name: itemData.name || product.title  // Use provided name or fall back to product.title
+      price: product.price,
+      image: product.images[0], // Store first image
+      name: product.name        // Store product name
     };
 
     return this.findOneAndUpdate(
