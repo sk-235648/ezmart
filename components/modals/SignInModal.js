@@ -1,21 +1,19 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { useState } from "react";
 import { FiX, FiUser } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function SignInModal({ onClose, showSignUp }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     setError("");
 
@@ -30,6 +28,8 @@ export default function SignInModal({ onClose, showSignUp }) {
 
       if (!res.ok) {
         throw new Error(data.message || "Login failed");
+        
+          
       }
 
       // Login successful
@@ -37,6 +37,18 @@ export default function SignInModal({ onClose, showSignUp }) {
       router.refresh(); // Refresh to update auth state
       router.push("/"); // Redirect to dashboard
       
+      toast.success("Login successful.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+  
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+         
+      });
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -44,49 +56,44 @@ export default function SignInModal({ onClose, showSignUp }) {
     }
   };
 
-  const handleLogout = () => {
-    deleteCookie("user");
-    window.dispatchEvent(new Event("userLoggedOut"));
-    onClose();
-    router.refresh?.();
-  };
-
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" />
+    <ToastContainer/>
+      <div className="fixed inset-0 z-40 backdrop-blur-[2px] bg-white/10"></div>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-          <button onClick={onClose} className="absolute top-2 right-2 text-purple-500">
-            <FiX className="w-5 h-5" />
+        <div className="relative bg-white rounded-lg shadow-xl border border-gray-200 w-full max-w-sm p-6">
+          <button
+            onClick={onClose}
+            className="absolute cursor-pointer -top-10 -right-2 p-2 text-purple-500 hover:text-purple-600"
+          >
+            <FiX className="h-6 w-6 hover:scale-110 transition-all duration-200" />
           </button>
 
-          <div className="flex justify-center mb-4">
-            <div className="bg-purple-100 p-3 rounded-full">
-              <FiUser className="text-purple-600 h-6 w-6" />
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+              <FiUser className="h-6 w-6 text-purple-600" />
             </div>
-          </div>
 
-          <h2 className="text-center text-lg font-semibold text-gray-800">Sign In</h2>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Sign in to your account
+            </h3>
 
-          {!isLoggedIn && (
             <form onSubmit={handleSubmit} className="mt-4 space-y-3">
               <input
                 type="email"
+                placeholder="Email address"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-200 outline-none"
               />
               <input
                 type="password"
+                placeholder="Password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-200"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-200 outline-none"
               />
               {error && (
                 <div className="text-red-500 text-sm text-left">{error}</div>
@@ -95,27 +102,21 @@ export default function SignInModal({ onClose, showSignUp }) {
                 type="submit"
                 className="w-full mt-4 py-2 px-4 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-70"
                 disabled={loading}
-                className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700"
               >
                 {loading ? "Signing In..." : "Sign In"}
               </button>
             </form>
-          )}
 
-          <p className="text-sm text-center mt-4 text-gray-500">
-            {isLoggedIn ? (
-              <button onClick={handleLogout} className="text-purple-600 font-medium hover:underline">
-                Logout
+            <p className="mt-3 text-sm text-gray-500">
+              Don&apos;t have an account?{" "}
+              <button
+                onClick={showSignUp}
+                className="text-purple-600 hover:text-purple-500"
+              >
+                Sign up
               </button>
-            ) : (
-              <>
-                Don't have an account?{" "}
-                <button onClick={showSignUp} className="text-purple-600 font-medium hover:underline">
-                  Sign Up
-                </button>
-              </>
-            )}
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     </>

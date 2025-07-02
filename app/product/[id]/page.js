@@ -10,8 +10,10 @@ import {
   FiChevronLeft,
 } from "react-icons/fi";
 import Image from "next/image";
-import { toast } from "react-toastify";
+import { toast , ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+// Add this import at the top
+import Script from "next/script";
 
 export default function ProductDetail() {
   const [product, setProduct] = useState(null);
@@ -91,7 +93,18 @@ export default function ProductDetail() {
       throw new Error(data.message || "Failed to add to cart");
     }
 
-    toast.success("Product added to cart!");
+    toast.success("Item added to cart.", {
+      position: "top-center",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+       
+    });
     
     if (redirectToCheckout) {
       router.push("/checkout");
@@ -104,8 +117,120 @@ export default function ProductDetail() {
   }
 };
 
-  const handleBuyNow = () => {
-    handleAddToCart(true);
+  // Update the handleBuyNow function
+  const handleBuyNow = async () => {
+    try {
+      // Validate selections
+      if (product.sizes && !selectedSize) {
+        toast.warning("Please select a size");
+        return;
+      }
+      if (product.colors && !selectedColor) {
+        toast.warning("Please select a color");
+        return;
+      }
+  
+      setIsAddingToCart(true);
+  
+      // First add to cart
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: params.id,
+          size: selectedSize,
+          color: selectedColor,
+          quantity,
+          price: product.price,
+          name: product.title,
+          image: product.images?.[0] || null
+        }),
+        credentials: "include"
+      });
+  
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || "Failed to add to cart");
+      }
+  
+      // Initialize Razorpay payment
+      const orderResponse = await fetch("/api/payment/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: product.price * quantity,
+          currency: "INR",
+        }),
+      });
+  
+      const orderData = await orderResponse.json();
+      
+      if (!orderResponse.ok) {
+        throw new Error(orderData.message || "Failed to create order");
+      }
+  
+      // Initialize Razorpay payment
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: product.price * quantity * 100, // in paise
+        currency: "INR",
+        name: "EzMart",
+        description: `Purchase of ${product.title}`,
+        order_id: orderData.order.id,
+        handler: async function (response) {
+          try {
+            // Verify payment on server
+            const verifyResponse = await fetch("/api/payment/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                productId: params.id,
+                amount: product.price * quantity,
+              }),
+            });
+  
+            const verifyData = await verifyResponse.json();
+            
+            if (!verifyResponse.ok) {
+              throw new Error(verifyData.message || "Payment verification failed");
+            }
+  
+            toast.success("Payment successful!");
+            // Redirect to success page
+            setTimeout(() => {
+              router.push("/payment-success");
+            }, 2000);
+          } catch (error) {
+            toast.error(error.message || "Payment verification failed");
+          }
+        },
+        prefill: {
+          name: "",
+          email: "",
+          contact: "",
+        },
+        theme: {
+          color: "#6366F1",
+        },
+      };
+  
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+  
+      paymentObject.on("payment.failed", function (response) {
+        toast.error(response.error.description || "Payment failed");
+      });
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      toast.error(error.message || "Failed to process payment");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   if (loading)
@@ -127,7 +252,13 @@ export default function ProductDetail() {
   const sizes = parseAttributes(product.sizes);
   const colors = parseAttributes(product.colors);
 
-  return (
+  return ( <>
+  <Script
+    id="razorpay-checkout-js"
+    src="https://checkout.razorpay.com/v1/checkout.js"
+  />
+  
+    <ToastContainer/>
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm py-4 px-6">
         <div className="max-w-7xl mx-auto">
@@ -310,5 +441,6 @@ export default function ProductDetail() {
         </div>
       </div>
     </div>
+    </>
   );
 }

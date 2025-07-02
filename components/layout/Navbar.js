@@ -5,10 +5,13 @@ import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiLogOut, FiX } from 'react-i
 import { useState, useRef, useEffect } from 'react';
 import SignInModal from '../modals/SignInModal';
 import SignUpModal from '../modals/SignUpModal';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Navbar() {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +46,18 @@ export default function Navbar() {
         setMobileMenuOpen(false);
         router.push('/');
         router.refresh();
+        toast.success("Logged out successfully.", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+    
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+           
+        });
       }
     } catch (error) {
       console.error('Logout failed:', error);
@@ -53,17 +68,18 @@ export default function Navbar() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
       setSearchExpanded(false);
+      setSearchQuery('');
     }
   };
 
   return (
     <>
+    <ToastContainer/>
       <nav className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Left: Logo & Menu */}
+            {/* Left side - logo and mobile menu button */}
             <div className="flex items-center flex-shrink-0">
               <button
                 onClick={() => setMobileMenuOpen(true)}
@@ -79,17 +95,15 @@ export default function Navbar() {
                   </span>
                   <span className="block lg:hidden text-xl">EZ</span>
                 </span>
-                <span className="block lg:hidden text-xl">EZ</span>
               </Link>
             </div>
 
-            {/* Middle: Search Bar */}
+            {/* Middle - search bar */}
             <div
               ref={searchContainerRef}
-              className={`relative flex-1 mx-2 md:mx-4 ${searchExpanded ? "md:flex-1" : ""}`}
+              className={`relative flex-1 mx-2 md:mx-4 ${searchExpanded ? 'md:flex-1' : ''}`}
             >
               <form onSubmit={handleSearch}>
-                {/* Desktop Search */}
                 <div className="hidden md:block relative w-full">
                   <input
                     type="text"
@@ -98,25 +112,27 @@ export default function Navbar() {
                     placeholder="Search for anything..."
                     className="w-full border border-gray-300 rounded-md py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-transparent"
                   />
-                  <button
+                  <button 
                     type="submit"
-                    className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md hover:bg-purple-700"
+                    className="absolute right-0 top-0 h-full px-4 bg-purple-600 text-white rounded-r-md hover:bg-purple-700 focus:outline-none"
                   >
                     Search
                   </button>
                 </div>
 
-                {/* Mobile Search */}
                 <div className="md:hidden flex items-center border border-gray-300 rounded-md overflow-hidden h-10">
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
+                    placeholder="Search for anything..."
                     className="flex-1 pl-4 pr-2 focus:outline-none"
                     onFocus={() => setSearchExpanded(true)}
                   />
-                  <button type="submit" className="px-3 h-full border-l border-gray-300 text-gray-500 hover:bg-gray-100">
+                  <button 
+                    type="submit"
+                    className="px-3 h-full border-l border-gray-300 text-gray-500 hover:bg-gray-100"
+                  >
                     <FiSearch className="h-5 w-5" />
                   </button>
                 </div>
@@ -162,7 +178,7 @@ export default function Navbar() {
               <Link href="/cart">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
-                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs h-5 w-5 flex items-center justify-center rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     0
                   </span>
                 </div>
@@ -255,6 +271,7 @@ export default function Navbar() {
           }}
         />
       )}
+
       {showSignUpModal && (
         <SignUpModal
           onClose={() => {

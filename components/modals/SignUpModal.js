@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { FiEye, FiEyeOff, FiX, FiUser } from "react-icons/fi";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function SignUpModal({ onClose, showSignIn }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,10 +73,31 @@ export default function SignUpModal({ onClose, showSignIn }) {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Signup successful. You can now sign in.");
+        toast.success("Signup successful.", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+    
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+           
+        });
         showSignIn(); // switch modal
       } else {
-        alert(data.message || "Signup failed");
+        toast.error(data.message || "Signup failed", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+    
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
       }
     } catch (error) {
       console.error("Signup error:", error);
@@ -84,6 +107,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
 
   return (
     <>
+    <ToastContainer/>
       <div className="fixed inset-0 z-40 backdrop-blur-[2px] bg-white/10"></div>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="relative bg-white rounded-lg shadow-xl border border-gray-200 w-full max-w-sm p-6">
