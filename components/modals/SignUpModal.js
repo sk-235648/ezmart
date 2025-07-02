@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { FiEye, FiEyeOff, FiX, FiUser } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 export default function SignUpModal({ onClose, showSignIn }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,6 +47,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
         ...errors,
         passwordMatch: true,
       });
+      toast.warning("Passwords do not match");
       return;
     }
 
@@ -54,6 +56,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
         ...errors,
         passwordLength: true,
       });
+      toast.warning("Password must be at least 8 characters");
       return;
     }
 
@@ -71,14 +74,14 @@ export default function SignUpModal({ onClose, showSignIn }) {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Signup successful. You can now sign in.");
+        toast.success("Signup successful! You can now sign in.");
         showSignIn(); // switch modal
       } else {
-        alert(data.message || "Signup failed");
+        toast.error(data.message || "Signup failed");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

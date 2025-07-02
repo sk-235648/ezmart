@@ -51,11 +51,6 @@ cartSchema.pre('save', function(next) {
 
 // Static methods
 cartSchema.statics = {
-  async getCart(userId) {
-    return this.findOne({ userId })
-      .populate('productId', 'name price images');
-  },
-
   async addItem(userId, itemData) {
     // Get product details first
     const Product = conn.model('Product');
@@ -70,9 +65,9 @@ cartSchema.statics = {
       quantity: itemData.quantity,
       color: itemData.color,
       size: itemData.size,
-      price: product.price,
-      image: product.images[0], // Store first image
-      name: product.name        // Store product name
+      price: itemData.price || product.price,
+      image: itemData.image || (product.images && product.images[0]),
+      name: itemData.name || product.title  // Use provided name or fall back to product.title
     };
 
     return this.findOneAndUpdate(
@@ -107,5 +102,10 @@ cartSchema.statics = {
   }
 };
 
+// At the end of the file, ensure the model is properly exported
 const Cart = conn.models.Cart || conn.model('Cart', cartSchema);
+
+// Add this line to ensure the model is properly initialized
+if (Cart) console.log("Cart model initialized");
+
 export default Cart;

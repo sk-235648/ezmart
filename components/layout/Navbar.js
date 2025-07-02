@@ -5,6 +5,7 @@ import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiLogOut, FiX } from 'react-i
 import { useState, useRef, useEffect } from 'react';
 import SignInModal from '../modals/SignInModal';
 import SignUpModal from '../modals/SignUpModal';
+import { toast } from 'react-toastify';
 
 export default function Navbar() {
   const router = useRouter();
@@ -42,11 +43,13 @@ export default function Navbar() {
       if (res.ok) {
         setIsLoggedIn(false);
         setMobileMenuOpen(false);
+        toast.success("Logged out successfully");
         router.push('/');
         router.refresh();
       }
     } catch (error) {
       console.error('Logout failed:', error);
+      toast.error("Logout failed");
     }
   };
 
