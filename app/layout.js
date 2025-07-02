@@ -30,6 +30,7 @@ export default function RootLayout({ children }) {
       >
         <Navbar />
         {children}
+         
         <Footer />
         <ToastContainer 
           position="top-right"

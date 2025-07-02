@@ -5,7 +5,8 @@ import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiLogOut, FiX } from 'react-i
 import { useState, useRef, useEffect } from 'react';
 import SignInModal from '../modals/SignInModal';
 import SignUpModal from '../modals/SignUpModal';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Navbar() {
   const router = useRouter();
@@ -46,6 +47,18 @@ export default function Navbar() {
         toast.success("Logged out successfully");
         router.push('/');
         router.refresh();
+        toast.success("Logged out successfully.", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+    
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+           
+        });
       }
     } catch (error) {
       console.error('Logout failed:', error);
@@ -64,6 +77,7 @@ export default function Navbar() {
 
   return (
     <>
+    <ToastContainer/>
       <nav className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
