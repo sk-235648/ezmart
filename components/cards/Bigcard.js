@@ -8,7 +8,7 @@ const Bigcard = () => {
       title: "Shop the Grand deals ",
       description: "Top brands with exiting offers !!!",
       buttonText: "Shop  Now",
-      categories: ["Laptops", "Smartphones", "Audio"],
+      categories: ["Laptops", "Smartphone", "Audio"],
       images: [
         "/images/Shirt.jpg",
         "/images/Shoe.jpg",
