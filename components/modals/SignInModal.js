@@ -33,6 +33,7 @@ export default function SignInModal({ onClose, showSignUp }) {
       }
 
       // Login successful
+      toast.success("Signed in successfully!");
       onClose();
       router.refresh(); // Refresh to update auth state
       router.push("/"); // Redirect to dashboard
@@ -51,6 +52,7 @@ export default function SignInModal({ onClose, showSignUp }) {
       });
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }

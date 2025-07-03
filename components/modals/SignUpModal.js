@@ -48,6 +48,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
         ...errors,
         passwordMatch: true,
       });
+      toast.warning("Passwords do not match");
       return;
     }
 
@@ -56,6 +57,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
         ...errors,
         passwordLength: true,
       });
+      toast.warning("Password must be at least 8 characters");
       return;
     }
 
@@ -101,7 +103,7 @@ export default function SignUpModal({ onClose, showSignIn }) {
       }
     } catch (error) {
       console.error("Signup error:", error);
-      alert("Something went wrong. Please try again.");
+      toast.error("Something went wrong. Please try again.");
     }
   };
 

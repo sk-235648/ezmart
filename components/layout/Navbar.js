@@ -68,6 +68,7 @@ export default function Navbar() {
       if (res.ok) {
         setIsLoggedIn(false);
         setMobileMenuOpen(false);
+        toast.success("Logged out successfully");
         router.push('/');
         router.refresh();
         toast.success("Logged out successfully.", {
@@ -85,6 +86,7 @@ export default function Navbar() {
       }
     } catch (error) {
       console.error('Logout failed:', error);
+      toast.error("Logout failed");
     }
   };
 

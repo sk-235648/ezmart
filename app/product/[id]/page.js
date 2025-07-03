@@ -25,6 +25,7 @@ export default function ProductDetail() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // Add this state
   const [isLikeLoading, setIsLikeLoading] = useState(false); // Add this state
+  const [selectedImage, setSelectedImage] = useState(0); // Add this state for tracking selected image
   const params = useParams();
   const router = useRouter();
 
@@ -337,8 +338,8 @@ export default function ProductDetail() {
     return str ? str.split(",").map((item) => item.trim()) : [];
   };
 
-  const sizes = parseAttributes(product.sizes);
-  const colors = parseAttributes(product.colors);
+  const sizes = parseAttributes(product?.sizes);
+  const colors = parseAttributes(product?.colors);
 
   return ( <>
   <Script
@@ -365,9 +366,9 @@ export default function ProductDetail() {
             {/* Product Images */}
             <div className="space-y-4">
               <div className="bg-gray-100 rounded-lg overflow-hidden h-96 flex items-center justify-center">
-                {product.images?.[0] ? (
+                {product?.images?.[selectedImage] ? (
                   <img
-                    src={product.images[0]}
+                    src={product.images[selectedImage]}
                     alt={product.title || "Product image"}
                     width={500}
                     height={500}
@@ -382,14 +383,15 @@ export default function ProductDetail() {
                 )}
               </div>
               <div className="flex space-x-2 overflow-x-auto py-2">
-                {product.images?.map((img, i) => (
+                {product?.images?.map((img, i) => (
                   <div key={i} className="flex-shrink-0">
                     <img
                       src={img}
                       width={64}
                       height={64}
-                      className="rounded-md object-cover border-2 border-gray-200 hover:border-purple-500 cursor-pointer"
+                      className={`rounded-md object-cover border-2 ${selectedImage === i ? 'border-purple-500' : 'border-gray-200'} hover:border-purple-500 cursor-pointer`}
                       alt={`Product thumbnail ${i}`}
+                      onClick={() => setSelectedImage(i)}
                       onError={(e) => {
                         e.target.src = "/placeholder-thumbnail.jpg";
                         e.target.onerror = null;
