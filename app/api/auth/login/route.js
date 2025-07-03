@@ -1,3 +1,4 @@
+//api/auth/login/route.js
 import getUserModel from '@/models/user';
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";

@@ -1,3 +1,4 @@
+//api/auth/Signup/route.js
 import getUserModel from '@/models/user';
 
 export async function POST(req) {

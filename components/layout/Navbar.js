@@ -1,10 +1,12 @@
 "use client"
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiLogOut, FiX } from 'react-icons/fi';
+import { FiShoppingCart, FiSearch, FiMenu, FiUser, FiLogOut, FiX, FiHeart } from 'react-icons/fi';
 import { useState, useRef, useEffect } from 'react';
 import SignInModal from '../modals/SignInModal';
 import SignUpModal from '../modals/SignUpModal';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Navbar() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export default function Navbar() {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [wishlistCount, setWishlistCount] = useState(0); // Add this state for wishlist count
   const searchContainerRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
@@ -33,6 +36,29 @@ export default function Navbar() {
     checkAuth();
   }, [showSignInModal, showSignUpModal]);
 
+  // Add this useEffect to fetch wishlist count
+  useEffect(() => {
+    const fetchWishlistCount = async () => {
+      if (!isLoggedIn) {
+        setWishlistCount(0);
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/wishlist', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          setWishlistCount(data.wishlist.products.length || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching wishlist:', error);
+        setWishlistCount(0);
+      }
+    };
+    
+    fetchWishlistCount();
+  }, [isLoggedIn]);
+
   const handleLogout = async () => {
     try {
       const res = await fetch('/api/auth/logout', {
@@ -42,11 +68,25 @@ export default function Navbar() {
       if (res.ok) {
         setIsLoggedIn(false);
         setMobileMenuOpen(false);
+        toast.success("Logged out successfully");
         router.push('/');
         router.refresh();
+        toast.success("Logged out successfully.", {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+    
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+           
+        });
       }
     } catch (error) {
       console.error('Logout failed:', error);
+      toast.error("Logout failed");
     }
   };
 
@@ -61,6 +101,7 @@ export default function Navbar() {
 
   return (
     <>
+    <ToastContainer/>
       <nav className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -160,6 +201,18 @@ export default function Navbar() {
                 </>
               )}
 
+              {/* Add Wishlist Icon */}
+              <Link href="/wishlist">
+                <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100">
+                  <FiHeart className="h-6 w-6 text-red-500" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </div>
+              </Link>
+
               <Link href="/cart">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
@@ -204,6 +257,17 @@ export default function Navbar() {
               <Link href="/deals" onClick={() => setMobileMenuOpen(false)}>
                 <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors">
                   Deals
+                </div>
+              </Link>
+              {/* Add Wishlist Link to Mobile Menu */}
+              <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)}>
+                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors flex items-center">
+                  <FiHeart className="mr-2 text-red-500" /> Wishlist
+                  {wishlistCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
                 </div>
               </Link>
               <Link href="/account" onClick={() => setMobileMenuOpen(false)}>
