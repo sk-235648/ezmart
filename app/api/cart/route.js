@@ -74,3 +74,48 @@ export async function GET() {
     );
   }
 }
+
+export async function DELETE(req) {
+  await connectDB("ezmart");
+
+  try {
+    const { userId } = await verifyToken();
+    const { productId } = await req.json();
+
+    if (!productId) {
+      return Response.json(
+        { success: false, message: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Find and update the cart
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { $pull: { items: { productId } } },
+      { new: true }
+    );
+
+    if (!cart) {
+      return Response.json(
+        { success: false, message: "Cart not found" },
+        { status: 404 }
+      );
+    }
+
+    return Response.json({
+      success: true,
+      cart,
+      message: "Item removed from cart"
+    });
+  } catch (err) {
+    console.error("Cart DELETE error:", err);
+    return Response.json(
+      { 
+        success: false, 
+        message: err.message || "Server error during item removal" 
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -60,11 +60,11 @@ export default function ProductDetail() {
     
     // Validate selections
     if (product.sizes && !selectedSize) {
-      toast.warning("Please select a size");
+      toast.warning("Please Select a size");
       return;
     }
     if (product.colors && !selectedColor) {
-      toast.warning("Please select a color");
+      toast.warning("Please Select a color");
       return;
     }
 
