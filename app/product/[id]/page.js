@@ -23,6 +23,8 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isLiked, setIsLiked] = useState(false); // Add this state
+  const [isLikeLoading, setIsLikeLoading] = useState(false); // Add this state
   const params = useParams();
   const router = useRouter();
 
@@ -56,66 +58,152 @@ export default function ProductDetail() {
     if (params.id) fetchProduct();
   }, [params.id]);
 
- const handleAddToCart = async (redirectToCheckout = false) => {
-  try {
-    setIsAddingToCart(true);
-    
-    // Validate selections
-    if (product.sizes && !selectedSize) {
-      toast.warning("Please select a size");
+  // Add this useEffect to check if the product is liked
+  useEffect(() => {
+    async function checkIfLiked() {
+      if (!params.id) return;
+      
+      try {
+        const response = await fetch("/api/wishlist", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: params.id }),
+          credentials: "include"
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setIsLiked(data.isLiked);
+        }
+      } catch (error) {
+        console.error("Error checking like status:", error);
+      }
+    }
+
+    checkIfLiked();
+  }, [params.id]);
+
+  // Add this function to handle liking/unliking products
+  const handleToggleLike = async () => {
+    try {
+      setIsLikeLoading(true);
+      
+      const response = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: params.id }),
+        credentials: "include"
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setIsLiked(data.liked);
+        toast.success(data.message);
+      } else {
+        throw new Error(data.message || "Failed to update wishlist");
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      toast.error(error.message || "Failed to update wishlist");
+    } finally {
+      setIsLikeLoading(false);
+    }
+  };
+
+  // Add this function to handle sharing
+  // Fix the share function to only show success message after actual sharing
+  const handleShare = async () => {
+    if (!navigator.share) {
+      toast.info("Sharing is not supported on your browser");
       return;
     }
-    if (product.colors && !selectedColor) {
-      toast.warning("Please select a color");
-      return;
-    }
-
-    const response = await fetch("/api/cart", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        productId: params.id,
-        size: selectedSize,
-        color: selectedColor,
-        quantity,
-        price: product.price,
-        name: product.title, // Changed from 'name' to 'title' to match your product model
-        image: product.images?.[0] || null
-      }),
-      credentials: "include" // Important for cookies
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to add to cart");
-    }
-
-    toast.success("Item added to cart.", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-       
-    });
     
-    if (redirectToCheckout) {
-      router.push("/checkout");
+    try {
+      // This opens the share dialog but doesn't indicate completion
+      await navigator.share({
+        title: product.title,
+        text: `Check out this product: ${product.title}`,
+        url: window.location.href,
+      });
+      
+      // Only show success message if the share was actually completed
+      // The await above will only resolve when the share dialog is closed
+      // and the share was successful (not canceled)
+      toast.success("Shared successfully!");
+    } catch (error) {
+      // User cancelled or share failed
+      console.error("Error sharing:", error);
+      if (error.name === "AbortError") {
+        // User canceled the share, don't show an error message
+        console.log("Share was canceled by user");
+      } else {
+        // An actual error occurred
+        toast.error("Failed to share");
+      }
     }
-  } catch (err) {
-    console.error("Error adding to cart:", err);
-    toast.error(err.message || "Failed to add to cart");
-  } finally {
-    setIsAddingToCart(false);
-  }
-};
+  };
+
+  const handleAddToCart = async (redirectToCheckout = false) => {
+    try {
+      setIsAddingToCart(true);
+      
+      // Validate selections
+      if (product.sizes && !selectedSize) {
+        toast.warning("Please select a size");
+        return;
+      }
+      if (product.colors && !selectedColor) {
+        toast.warning("Please select a color");
+        return;
+      }
+
+      const response = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: params.id,
+          size: selectedSize,
+          color: selectedColor,
+          quantity,
+          price: product.price,
+          name: product.title, // Changed from 'name' to 'title' to match your product model
+          image: product.images?.[0] || null
+        }),
+        credentials: "include" // Important for cookies
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add to cart");
+      }
+
+      toast.success("Item added to cart.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+         
+      });
+      
+      if (redirectToCheckout) {
+        router.push("/checkout");
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      toast.error(err.message || "Failed to add to cart");
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   // Update the handleBuyNow function
   const handleBuyNow = async () => {
@@ -427,12 +515,20 @@ export default function ProductDetail() {
                   Buy Now
                 </button>
               </div>
-
-              <div className="flex space-x-4 pt-4">
-                <button className="flex items-center text-gray-600 hover:text-purple-600">
-                  <FiHeart className="mr-2" /> Wishlist
+              
+              <div className="flex space-x-4 pt-2">
+                <button 
+                  onClick={handleToggleLike}
+                  disabled={isLikeLoading}
+                  className={`flex items-center ${isLiked ? 'text-red-500' : 'text-gray-600'} hover:text-red-500`}
+                >
+                  <FiHeart className="mr-2" fill={isLiked ? "currentColor" : "none"} /> 
+                  {isLiked ? "Liked" : "Wishlist"}
                 </button>
-                <button className="flex items-center text-gray-600 hover:text-purple-600">
+                <button 
+                  onClick={handleShare}
+                  className="flex items-center text-gray-600 hover:text-purple-600"
+                >
                   <FiShare2 className="mr-2" /> Share
                 </button>
               </div>
