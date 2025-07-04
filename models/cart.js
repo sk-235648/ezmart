@@ -51,11 +51,6 @@ cartSchema.pre('save', function(next) {
 
 // Static methods
 cartSchema.statics = {
-  async getCart(userId) {
-    return this.findOne({ userId })
-      .populate('productId', 'name price images');
-  },
-
   async addItem(userId, itemData) {
     // Get product details first
     const Product = conn.model('Product');
@@ -64,6 +59,7 @@ cartSchema.statics = {
     if (!product) {
       throw new Error('Product not found');
     }
+
 
     const cartItem = {
       productId: itemData.productId,
@@ -107,5 +103,10 @@ cartSchema.statics = {
   }
 };
 
+// At the end of the file, ensure the model is properly exported
 const Cart = conn.models.Cart || conn.model('Cart', cartSchema);
+
+// Add this line to ensure the model is properly initialized
+if (Cart) console.log("Cart model initialized");
+
 export default Cart;

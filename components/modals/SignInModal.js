@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { FiX, FiUser } from "react-icons/fi";
 import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function SignInModal({ onClose, showSignUp }) {
   const [email, setEmail] = useState("");
@@ -26,15 +28,31 @@ export default function SignInModal({ onClose, showSignUp }) {
 
       if (!res.ok) {
         throw new Error(data.message || "Login failed");
+        
+          
       }
 
       // Login successful
+      toast.success("Signed in successfully!");
       onClose();
       router.refresh(); // Refresh to update auth state
       router.push("/"); // Redirect to dashboard
       
+      toast.success("Login successful.", {
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+  
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+         
+      });
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
+      toast.error(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -42,6 +60,7 @@ export default function SignInModal({ onClose, showSignUp }) {
 
   return (
     <>
+    <ToastContainer/>
       <div className="fixed inset-0 z-40 backdrop-blur-[2px] bg-white/10"></div>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div className="relative bg-white rounded-lg shadow-xl border border-gray-200 w-full max-w-sm p-6">
