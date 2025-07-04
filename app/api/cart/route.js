@@ -1,18 +1,42 @@
 //api/cart/route.js
+import { headers } from "next/headers";
 import { connectDB } from "@/lib/db";
 import { verifyToken } from "@/lib/auth";
 import Cart from "@/models/cart";
+import Product from "@/models/Product";
+
 export async function POST(req) {
   await connectDB("ezmart");
 
   try {
-    const { productId, quantity = 1, color, size, price, name, image } = await req.json();
-    const { userId } = await verifyToken();
+    const {
+      productId,
+      quantity = 1,
+      color,
+      size
+    } = await req.json();
+
+    // ✅ Get token from cookie header
+    const headersList = await headers();
+    const cookieHeader = headersList.get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) throw new Error("No token found");
+    const { _id: userId } = await verifyToken(token);
 
     if (!productId) {
       return Response.json(
         { success: false, message: "Product ID is required" },
         { status: 400 }
+      );
+    }
+
+    // Fetch product details to get price, name, and image
+    const product = await Product.findById(productId);
+    if (!product) {
+      return Response.json(
+        { success: false, message: "Product not found" },
+        { status: 404 }
       );
     }
 
@@ -44,9 +68,9 @@ export async function POST(req) {
             quantity,
             color,
             size,
-            price,
-            name,
-            image
+            price: product.price,
+            name: product.title,
+            image: product.images[0]
           } 
         } 
       },
@@ -70,21 +94,26 @@ export async function GET() {
   await connectDB("ezmart");
 
   try {
-    const { userId } = await verifyToken();
-    
-    // Find cart and populate product details if needed
-    const cart = await Cart.findOne({ userId }).lean(); // .lean() for better performance
-    
+    const headersList = await headers();
+    const cookieHeader = headersList.get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) throw new Error("No token found");
+    const { _id: userId } = await verifyToken(token);
+
+    // Find cart without populate
+    const cart = await Cart.findOne({ userId });
+
     if (!cart) {
       return Response.json({
         success: true,
-        cart: { items: [] } // Return empty cart if not found
+        cart: { items: [] },
       });
     }
 
     return Response.json({
       success: true,
-      cart
+      cart,
     });
   } catch (err) {
     console.error("Cart GET error:", err);
@@ -98,7 +127,13 @@ export async function DELETE(req) {
   await connectDB("ezmart");
 
   try {
-    const { userId } = await verifyToken();
+    const headersList = await headers();
+    const cookieHeader = headersList.get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) throw new Error("No token found");
+    const { _id: userId } = await verifyToken(token);
+
     const { productId } = await req.json();
 
     if (!productId) {
@@ -108,7 +143,6 @@ export async function DELETE(req) {
       );
     }
 
-    // Find and update the cart
     const cart = await Cart.findOneAndUpdate(
       { userId },
       { $pull: { items: { productId } } },
@@ -125,15 +159,58 @@ export async function DELETE(req) {
     return Response.json({
       success: true,
       cart,
-      message: "Item removed from cart"
+      message: "Item removed from cart",
     });
   } catch (err) {
     console.error("Cart DELETE error:", err);
     return Response.json(
-      { 
-        success: false, 
-        message: err.message || "Server error during item removal" 
-      },
+      { success: false, message: err.message || "Server error during item removal" },
+      { status: 500 }
+    );
+  }
+}
+export async function PUT(req) {
+  await connectDB("ezmart");
+
+  try {
+    const headersList = await headers();
+    const cookieHeader = headersList.get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) throw new Error("No token found");
+    const { _id: userId } = await verifyToken(token);
+
+    const { productId, quantity } = await req.json();
+
+    if (!productId || !quantity) {
+      return Response.json(
+        { success: false, message: "Product ID and quantity are required" },
+        { status: 400 }
+      );
+    }
+
+    const cart = await Cart.findOneAndUpdate(
+      { userId, "items.productId": productId },
+      { $set: { "items.$.quantity": quantity } },
+      { new: true }
+    );
+
+    if (!cart) {
+      return Response.json(
+        { success: false, message: "Cart or item not found" },
+        { status: 404 }
+      );
+    }
+
+    return Response.json({
+      success: true,
+      cart,
+      message: "Quantity updated successfully",
+    });
+  } catch (err) {
+    console.error("Cart PUT error:", err);
+    return Response.json(
+      { success: false, message: err.message || "Server error during quantity update" },
       { status: 500 }
     );
   }
