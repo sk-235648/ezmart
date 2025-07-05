@@ -3,6 +3,8 @@ import "./globals.css";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
 import { ToastContainer } from "react-toastify";
+import { Inter } from 'next/font/google'
+
 import "react-toastify/dist/ReactToastify.css";
  
 
