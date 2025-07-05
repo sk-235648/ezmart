@@ -14,7 +14,10 @@ export default function WishlistPage() {
     async function fetchWishlist() {
       try {
         setLoading(true);
-        const res = await fetch("/api/wishlist", { cache: "no-store" });
+        const res = await fetch("/api/wishlist", { 
+          cache: "no-store",
+          credentials: "include" 
+        });
         
         if (!res.ok) {
           throw new Error("Failed to fetch wishlist");
@@ -39,6 +42,7 @@ export default function WishlistPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId }),
+        credentials: "include"
       });
 
       if (!res.ok) {
@@ -66,9 +70,8 @@ export default function WishlistPage() {
         body: JSON.stringify({
           productId: product._id,
           quantity: 1,
-          price: product.price,
-          name: product.title,
-          image: product.images?.[0] || null
+          color: product.colors ? product.colors.split(',')[0].trim() : '',
+          size: product.sizes ? product.sizes.split(',')[0].trim() : '',
         }),
         credentials: "include"
       });

@@ -1,17 +1,27 @@
-import { connectDB } from "@/lib/db";
+import { headers } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { connectDB } from "@/lib/db";
 import Wishlist from "@/models/wishlist";
+import Product from "@/models/Product"; // Import Product model
 
 // Get user's wishlist
 export async function GET() {
-  await connectDB("ezmart");
-
   try {
-    const { userId } = await verifyToken();
+    await connectDB("ezmart");
+    const cookieHeader = headers().get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) {
+      return Response.json(
+        { success: false, message: "No token found" },
+        { status: 401 }
+      );
+    }
+
+    const { _id: userId } = await verifyToken(token);
     
-    // Find wishlist
-    const wishlist = await Wishlist.findOne({ userId })
-      .populate('products.productId', 'title price images');
+    // Find wishlist without populate first
+    const wishlist = await Wishlist.findOne({ userId });
     
     if (!wishlist) {
       return Response.json({
@@ -20,9 +30,30 @@ export async function GET() {
       });
     }
 
+    // Manually populate product details
+    const populatedProducts = [];
+    for (const item of wishlist.products) {
+      try {
+        const product = await Product.findById(item.productId);
+        if (product) {
+          populatedProducts.push({
+            productId: {
+              _id: product._id,
+              title: product.title,
+              price: product.price,
+              images: product.images
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error populating product:", err);
+      }
+    }
+
+    // Return the wishlist with populated products
     return Response.json({
       success: true,
-      wishlist
+      wishlist: { products: populatedProducts }
     });
   } catch (err) {
     console.error("Wishlist GET error:", err);
@@ -35,11 +66,20 @@ export async function GET() {
 
 // Add product to wishlist
 export async function POST(req) {
-  await connectDB("ezmart");
-
   try {
+    await connectDB("ezmart");
+    const cookieHeader = headers().get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) {
+      return Response.json(
+        { success: false, message: "No token found" },
+        { status: 401 }
+      );
+    }
+
+    const { _id: userId } = await verifyToken(token);
     const { productId } = await req.json();
-    const { userId } = await verifyToken();
 
     if (!productId) {
       return Response.json(
@@ -91,11 +131,20 @@ export async function POST(req) {
 
 // Check if a product is in the wishlist
 export async function PUT(req) {
-  await connectDB("ezmart");
-
   try {
+    await connectDB("ezmart");
+    const cookieHeader = headers().get("cookie") || "";
+    const token = cookieHeader.match(/token=([^;]+)/)?.[1];
+
+    if (!token) {
+      return Response.json(
+        { success: false, message: "No token found" },
+        { status: 401 }
+      );
+    }
+
+    const { _id: userId } = await verifyToken(token);
     const { productId } = await req.json();
-    const { userId } = await verifyToken();
 
     if (!productId) {
       return Response.json(
