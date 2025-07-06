@@ -16,7 +16,7 @@ export default function Navbar() {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(0); // Add this state for wishlist count
+  const [wishlistCount, setWishlistCount] = useState(0);
   const searchContainerRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
@@ -88,6 +88,17 @@ export default function Navbar() {
     }
   };
 
+  // Handle account click - redirect to login if not logged in
+  const handleAccountClick = () => {
+    setMobileMenuOpen(false);
+    if (!isLoggedIn) {
+      setShowSignInModal(true);
+    } else {
+      // If logged in, you can redirect to account page or show account options
+      router.push('/account');
+    }
+  };
+
   return (
     <>
     <ToastContainer/>
@@ -98,10 +109,10 @@ export default function Navbar() {
             <div className="flex items-center flex-shrink-0">
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-2"
+                className="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none mr-2 transition-colors duration-200"
                 aria-label="Open menu"
               >
-                <FiMenu className="h-5 w-5" />
+                <FiMenu className="h-6 w-6" />
               </button>
               <Link href="/">
                 <span className="font-bold text-purple-600 cursor-pointer">
@@ -176,23 +187,23 @@ export default function Navbar() {
                 <>
                   <button
                     onClick={() => setShowSignInModal(true)}
-                    className="hidden md:flex items-center space-x-1 px-3 py-2 rounded-md text-purple-600 hover:bg-purple-50"
+                    className="hidden md:flex items-center space-x-1 px-3 py-2 rounded-md text-purple-600 hover:bg-purple-50 transition-colors"
                   >
                     <FiUser className="h-5 w-5" />
                     <span>Sign In</span>
                   </button>
                   <button
                     onClick={() => setShowSignInModal(true)}
-                    className="md:hidden p-2 text-purple-600 hover:bg-purple-50 rounded-full"
+                    className="md:hidden p-2 text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
                   >
                     <FiUser className="h-5 w-5" />
                   </button>
                 </>
               )}
 
-              {/* Add Wishlist Icon */}
-              <Link href="/wishlist">
-                <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100">
+              {/* Wishlist Icon - Hidden on mobile */}
+              <Link href="/wishlist" className="hidden md:block">
+                <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiHeart className="h-6 w-6 text-red-500" />
                   {wishlistCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -202,8 +213,9 @@ export default function Navbar() {
                 </div>
               </Link>
 
-              <Link href="/cart">
-                <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100">
+              {/* Cart Icon - Hidden on mobile */}
+              <Link href="/cart" className="hidden md:block">
+                <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
                   <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     0
@@ -215,63 +227,95 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Mobile Menu */}
       <div
         ref={mobileMenuRef}
-        className={`fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="h-full flex flex-col">
+          {/* Header */}
           <div className="flex justify-between items-center p-4 border-b border-gray-200">
             <Link href="/" onClick={() => setMobileMenuOpen(false)}>
               <span className="font-bold text-purple-600 text-xl">EZMart</span>
             </Link>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 text-gray-500 hover:text-gray-900"
+              className="p-2 text-gray-500 hover:text-gray-900 transition-colors duration-200"
               aria-label="Close menu"
             >
               <FiX className="h-6 w-6" />
             </button>
           </div>
 
+          {/* Menu Items */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="space-y-2">
               <Link href="/categories" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors">
+                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200">
                   Categories
                 </div>
               </Link>
               <Link href="/deals" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors">
+                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200">
                   Deals
                 </div>
               </Link>
-              {/* Add Wishlist Link to Mobile Menu */}
+              
+              {/* Wishlist Link */}
               <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors flex items-center">
-                  <FiHeart className="mr-2 text-red-500" /> Wishlist
+                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FiHeart className="mr-3 text-red-500" />
+                    <span>Wishlist</span>
+                  </div>
                   {wishlistCount > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {wishlistCount}
                     </span>
                   )}
                 </div>
               </Link>
-              <Link href="/account" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors">
-                  My Account
+
+              {/* Cart Link */}
+              <Link href="/cart" onClick={() => setMobileMenuOpen(false)}>
+                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FiShoppingCart className="mr-3 text-purple-600" />
+                    <span>Cart</span>
+                  </div>
+                  <span className="bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    0
+                  </span>
                 </div>
               </Link>
+
+              {/* My Account Link - redirects to login if not logged in */}
+              <div 
+                onClick={handleAccountClick}
+                className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center"
+              >
+                <FiUser className="mr-3 text-purple-600" />
+                <span>My Account</span>
+              </div>
             </div>
           </div>
 
+          {/* Footer */}
           <div className="p-4 border-t border-gray-200">
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
               >
                 <FiLogOut className="h-5 w-5 mr-2" />
                 Sign Out
@@ -282,7 +326,7 @@ export default function Navbar() {
                   setShowSignInModal(true);
                   setMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-purple-600 hover:bg-purple-50 transition-colors"
+                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-purple-600 hover:bg-purple-50 transition-colors duration-200"
               >
                 <FiUser className="h-5 w-5 mr-2" />
                 Sign In
