@@ -37,6 +37,12 @@ const fetchCart = async () => {
     console.log("🛒 Cart GET response:", data); // ✅ Add this
 
     if (!res.ok) {
+      // Handle authentication error specifically
+      if (data.message === "No token found") {
+        toast.error("Please sign in to view your cart");
+        setCart({ items: [] });
+        return;
+      }
       throw new Error(data.message || "Failed to load cart");
     }
 
@@ -70,6 +76,11 @@ const fetchCart = async () => {
         setCart(data.cart || { items: [] });
         toast.success("Quantity updated");
       } else {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to update your cart");
+          return;
+        }
         throw new Error(data.message || "Update failed");
       }
     } catch (error) {
@@ -95,6 +106,11 @@ const fetchCart = async () => {
         setCart(data.cart || { items: [] });
         toast.success("Item removed");
       } else {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to manage your cart");
+          return;
+        }
         throw new Error(data.message || "Removal failed");
       }
     } catch (error) {
