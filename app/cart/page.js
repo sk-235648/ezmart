@@ -186,7 +186,7 @@ const fetchCart = async () => {
                   </div>
 
                   <div className="col-span-2 text-center hidden md:block">
-                    ${itemPrice.toFixed(2)}
+                    ₹{itemPrice.toFixed(2)}
                   </div>
 
                   <div className="col-span-2">
@@ -207,7 +207,7 @@ const fetchCart = async () => {
                   </div>
 
                   <div className="col-span-2 text-right font-medium">
-                    ${(itemPrice * itemQuantity).toFixed(2)}
+                    ₹{(itemPrice * itemQuantity).toFixed(2)}
                   </div>
 
                   <div className="col-span-12 flex justify-end mt-2">
@@ -227,7 +227,7 @@ const fetchCart = async () => {
               <span>
                 {cart.items.length} {cart.items.length === 1 ? "Item" : "Items"}
               </span>
-              <span>${calculateTotal().toFixed(2)}</span>
+              <span>₹{calculateTotal().toFixed(2)}</span>
             </div>
           </div>
 
@@ -238,7 +238,7 @@ const fetchCart = async () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
@@ -248,7 +248,7 @@ const fetchCart = async () => {
 
               <div className="border-t pt-4 flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
 
               <button

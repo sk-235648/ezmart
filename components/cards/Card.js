@@ -85,8 +85,8 @@ export default function CardList() {
         {products.map((product) => {
           const imageUrl = getImageUrl(product.images?.[0]);
           const title = product.title || product.category || 'Product';
-          const price = product.price ? `$${product.price.toLocaleString()}` : '';
-          const originalPrice = product.originalPrice ? `$${product.originalPrice.toLocaleString()}` : '';
+          const price = product.price ? `₹${product.price.toLocaleString()}` : '';
+          const originalPrice = product.originalPrice ? `₹${product.originalPrice.toLocaleString()}` : '';
           const discount = product.originalPrice && product.price ? 
             Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
           const rating = product.rating || 0;
