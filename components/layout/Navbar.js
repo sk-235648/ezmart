@@ -70,8 +70,6 @@ export default function Navbar() {
         setMobileMenuOpen(false);
         toast.success("Logged out successfully");
         router.push('/');
-        router.refresh();
-         
       }
     } catch (error) {
       console.error('Logout failed:', error);
@@ -151,7 +149,7 @@ export default function Navbar() {
             {/* Middle - search bar */}
             <div
               ref={searchContainerRef}
-              className={`relative flex-1 mx-2 md:mx-4 ${searchExpanded ? 'md:flex-1' : ''}`}
+              className={`relative mx-2 md:mx-4 ${isLoggedIn ? 'flex-1 md:flex-1' : 'flex-1'} ${searchExpanded ? 'md:flex-1' : ''}`}
             >
               <form onSubmit={handleSearch}>
                 <div className="hidden md:block relative w-full">
@@ -176,7 +174,7 @@ export default function Navbar() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for anything..."
-                    className="flex-1 pl-4 pr-2 focus:outline-none"
+                    className={`${isLoggedIn ? 'w-40' : 'flex-1'} pl-4 pr-2 focus:outline-none`}
                     onFocus={() => setSearchExpanded(true)}
                   />
                   <button 
@@ -189,7 +187,7 @@ export default function Navbar() {
               </form>
             </div>
 
-            {/* Right side - auth and cart */}
+            {/* Right side - auth, cart, wishlist, and user avatar */}
             <div className="flex items-center space-x-2 ml-2">
               {isLoggedIn ? (
                 <>
@@ -200,7 +198,31 @@ export default function Navbar() {
                     <FiLogOut className="h-5 w-5" />
                     <span>Logout</span>
                   </button>
-                  {/* Logout button hidden on mobile - will be in hamburger menu */}
+                  
+                  {/* Mobile icons for logged in users */}
+                  <div className="md:hidden flex items-center space-x-1">
+                    {/* Wishlist Icon */}
+                    <Link href="/wishlist" onClick={handleWishlistClick}>
+                      <div className="relative p-1.5 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
+                        <FiHeart className="h-5 w-5 text-red-500" />
+                        {wishlistCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                            {wishlistCount}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+
+                    {/* Cart Icon */}
+                    <Link href="/cart" onClick={handleCartClick}>
+                      <div className="relative p-1.5 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
+                        <FiShoppingCart className="h-5 w-5 text-purple-600" />
+                        <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                          0
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
                 </>
               ) : (
                 <>
@@ -215,7 +237,7 @@ export default function Navbar() {
                 </>
               )}
 
-              {/* Wishlist Icon - Hidden on mobile */}
+              {/* Desktop Wishlist Icon - Hidden on mobile */}
               <Link href="/wishlist" onClick={handleWishlistClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiHeart className="h-6 w-6 text-red-500" />
@@ -227,7 +249,7 @@ export default function Navbar() {
                 </div>
               </Link>
 
-              {/* Cart Icon - Hidden on mobile */}
+              {/* Desktop Cart Icon - Hidden on mobile */}
               <Link href="/cart" onClick={handleCartClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
