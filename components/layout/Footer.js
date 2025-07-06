@@ -31,7 +31,7 @@ export default function Footer() {
                             </li>
                             <li>
                                 <Link href="/deals" className="text-gray-300 hover:text-white">
-                                    Today's Deals
+                                    Today&apos;s Deals
                                 </Link>
                             </li>
                         </ul>
