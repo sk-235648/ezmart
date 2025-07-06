@@ -6,7 +6,7 @@ export default function Footer() {
     return (
         <footer className="bg-purple-600 border-t border-gray-200 mt-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-12">
 
                     {/* Quick Links */}
                     <div>
@@ -66,7 +66,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* About Us */}
+                    {/* About Us & Social Links */}
                     <div>
                         <h3 className="text-sm font-semibold text-white tracking-wider uppercase">
                             About EZ Mart
@@ -93,47 +93,29 @@ export default function Footer() {
                                 </Link>
                             </li>
                         </ul>
-                    </div>
-
-                    {/* Newsletter */}
-                    <div className="flex flex-col items-start">
-                        <h3 className="text-sm font-semibold text-white tracking-wider uppercase">
-                            Stay Updated
-                        </h3>
-                        <p className="mt-4 text-gray-300">
-                            Subscribe to our newsletter for the latest deals and updates
-                        </p>
-                    </div>
-                    <div>
-                        <form className="mt-4 flex">
-                            <input
-                                type="email"
-                                placeholder="Your email"
-                                className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-200"
-                            />
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-slate-800 text-white rounded-r-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
-                            >
-                                Subscribe
-                            </button>
-                        </form>
-                        <div className="mt-4 flex space-x-4">
-                            <Link href="#" className="hover:text-white">
-                                <FiFacebook className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="hover:text-white">
-                                <FiTwitter className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="hover:text-white">
-                                <FiInstagram className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="hover:text-white">
-                                <FiYoutube className="h-5 w-5" />
-                            </Link>
-                            <Link href="#" className="hover:text-white">
-                                <FiLinkedin className="h-5 w-5" />
-                            </Link>
+                        
+                        {/* Social Media Links */}
+                        <div className="mt-6">
+                            <h4 className="text-sm font-semibold text-white tracking-wider uppercase mb-3">
+                                Follow Us
+                            </h4>
+                            <div className="flex space-x-4">
+                                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                                    <FiFacebook className="h-5 w-5" />
+                                </Link>
+                                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                                    <FiTwitter className="h-5 w-5" />
+                                </Link>
+                                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                                    <FiInstagram className="h-5 w-5" />
+                                </Link>
+                                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                                    <FiYoutube className="h-5 w-5" />
+                                </Link>
+                                <Link href="#" className="text-gray-300 hover:text-white transition-colors">
+                                    <FiLinkedin className="h-5 w-5" />
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -143,7 +125,6 @@ export default function Footer() {
                     <p className="text-white text-sm">
                         &copy; {new Date().getFullYear()} EZ Mart. All rights reserved.
                     </p>
-                    
                 </div>
             </div>
         </footer>
