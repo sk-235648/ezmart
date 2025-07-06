@@ -8,9 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "engines": {
-  "node": "18.x"
-},
+ 
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cookies-next": "^6.0.0",
