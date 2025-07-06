@@ -99,6 +99,30 @@ export default function Navbar() {
     }
   };
 
+  // Handle wishlist click - show login message if not logged in
+  const handleWishlistClick = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      toast.info("Please log in to access your wishlist");
+      setShowSignInModal(true);
+      setMobileMenuOpen(false);
+    } else {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  // Handle cart click - show login message if not logged in
+  const handleCartClick = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      toast.info("Please log in to access your cart");
+      setShowSignInModal(true);
+      setMobileMenuOpen(false);
+    } else {
+      setMobileMenuOpen(false);
+    }
+  };
+
   return (
     <>
     <ToastContainer/>
@@ -176,12 +200,7 @@ export default function Navbar() {
                     <FiLogOut className="h-5 w-5" />
                     <span>Logout</span>
                   </button>
-                  <button
-                    onClick={handleLogout}
-                    className="md:hidden p-2 text-white bg-red-600 hover:bg-red-700 rounded-full transition-colors"
-                  >
-                    <FiLogOut className="h-5 w-5" />
-                  </button>
+                  {/* Logout button hidden on mobile - will be in hamburger menu */}
                 </>
               ) : (
                 <>
@@ -192,17 +211,12 @@ export default function Navbar() {
                     <FiUser className="h-5 w-5" />
                     <span>Sign In</span>
                   </button>
-                  <button
-                    onClick={() => setShowSignInModal(true)}
-                    className="md:hidden p-2 text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
-                  >
-                    <FiUser className="h-5 w-5" />
-                  </button>
+                  {/* Sign In button hidden on mobile - will be in hamburger menu */}
                 </>
               )}
 
               {/* Wishlist Icon - Hidden on mobile */}
-              <Link href="/wishlist" className="hidden md:block">
+              <Link href="/wishlist" onClick={handleWishlistClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiHeart className="h-6 w-6 text-red-500" />
                   {wishlistCount > 0 && (
@@ -214,7 +228,7 @@ export default function Navbar() {
               </Link>
 
               {/* Cart Icon - Hidden on mobile */}
-              <Link href="/cart" className="hidden md:block">
+              <Link href="/cart" onClick={handleCartClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
                   <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -272,55 +286,48 @@ export default function Navbar() {
               </Link>
               
               {/* Wishlist Link */}
-              <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <FiHeart className="mr-3 text-red-500" />
-                    <span>Wishlist</span>
-                  </div>
-                  {wishlistCount > 0 && (
-                    <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {wishlistCount}
-                    </span>
-                  )}
+              <Link href="/wishlist" onClick={handleWishlistClick} className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
+                <div className="flex items-center">
+                  <FiHeart className="mr-3 text-red-500" />
+                  <span>Wishlist</span>
                 </div>
+                {wishlistCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
 
               {/* Cart Link */}
-              <Link href="/cart" onClick={() => setMobileMenuOpen(false)}>
-                <div className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <FiShoppingCart className="mr-3 text-purple-600" />
-                    <span>Cart</span>
-                  </div>
-                  <span className="bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
-                  </span>
+              <Link href="/cart" onClick={handleCartClick} className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center justify-between">
+                <div className="flex items-center">
+                  <FiShoppingCart className="mr-3 text-purple-600" />
+                  <span>Cart</span>
                 </div>
+                <span className="bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  0
+                </span>
               </Link>
 
-              {/* My Account Link - redirects to login if not logged in */}
-              <div 
-                onClick={handleAccountClick}
-                className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center"
-              >
-                <FiUser className="mr-3 text-purple-600" />
-                <span>My Account</span>
-              </div>
+              {/* Logout option - only show when logged in */}
+              {isLoggedIn && (
+                <div 
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 cursor-pointer transition-colors duration-200 flex items-center"
+                >
+                  <FiLogOut className="mr-3 text-red-600" />
+                  <span>Logout</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Footer */}
           <div className="p-4 border-t border-gray-200">
-            {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center px-4 py-3 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
-              >
-                <FiLogOut className="h-5 w-5 mr-2" />
-                Sign Out
-              </button>
-            ) : (
+            {!isLoggedIn && (
               <button
                 onClick={() => {
                   setShowSignInModal(true);
