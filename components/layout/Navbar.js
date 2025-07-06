@@ -174,7 +174,7 @@ export default function Navbar() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search for anything..."
-                    className={`${isLoggedIn ? 'w-40' : 'flex-1'} pl-4 pr-2 focus:outline-none`}
+                    className={`${isLoggedIn ? 'w-40' : 'w-48'} pl-4 pr-2 focus:outline-none`}
                     onFocus={() => setSearchExpanded(true)}
                   />
                   <button 
