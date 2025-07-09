@@ -71,6 +71,18 @@ export default function Navbar() {
         toast.success("Logged out successfully");
         router.push('/');
       }
+
+      toast.success("Logged out successfullyessfully.", { 
+        position: "top-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+
     } catch (error) {
       console.error('Logout failed:', error);
       toast.error("Logout failed");

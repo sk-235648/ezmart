@@ -84,6 +84,9 @@ export default function CheckoutPage() {
         }
         throw new Error(orderData.message || "Failed to create order");
       }
+      
+      // Store the internal order ID for later use
+      const internalOrderId = orderData.orderId;
 
       // Initialize Razorpay payment
       const options = {
@@ -104,6 +107,7 @@ export default function CheckoutPage() {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 amount: total,
+                orderId: internalOrderId,
               }),
             });
 
