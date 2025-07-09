@@ -16,7 +16,6 @@ export default function Navbar() {
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(0);
   const searchContainerRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
@@ -35,29 +34,6 @@ export default function Navbar() {
     
     checkAuth();
   }, [showSignInModal, showSignUpModal]);
-
-  // Add this useEffect to fetch wishlist count
-  useEffect(() => {
-    const fetchWishlistCount = async () => {
-      if (!isLoggedIn) {
-        setWishlistCount(0);
-        return;
-      }
-      
-      try {
-        const res = await fetch('/api/wishlist', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          setWishlistCount(data.wishlist.products.length || 0);
-        }
-      } catch (error) {
-        console.error('Error fetching wishlist:', error);
-        setWishlistCount(0);
-      }
-    };
-    
-    fetchWishlistCount();
-  }, [isLoggedIn]);
 
   const handleLogout = async () => {
     try {
@@ -187,7 +163,7 @@ export default function Navbar() {
               </form>
             </div>
 
-            {/* Right side - auth, cart, wishlist, and user avatar */}
+            {/* Right side - auth, cart, wishlist */}
             <div className="flex items-center space-x-2 ml-2">
               {isLoggedIn ? (
                 <>
@@ -205,11 +181,6 @@ export default function Navbar() {
                     <Link href="/wishlist" onClick={handleWishlistClick}>
                       <div className="relative p-1.5 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                         <FiHeart className="h-5 w-5 text-red-500" />
-                        {wishlistCount > 0 && (
-                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                            {wishlistCount}
-                          </span>
-                        )}
                       </div>
                     </Link>
 
@@ -217,9 +188,6 @@ export default function Navbar() {
                     <Link href="/cart" onClick={handleCartClick}>
                       <div className="relative p-1.5 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                         <FiShoppingCart className="h-5 w-5 text-purple-600" />
-                        <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                          0
-                        </span>
                       </div>
                     </Link>
                   </div>
@@ -241,11 +209,6 @@ export default function Navbar() {
               <Link href="/wishlist" onClick={handleWishlistClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiHeart className="h-6 w-6 text-red-500" />
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {wishlistCount}
-                    </span>
-                  )}
                 </div>
               </Link>
 
@@ -253,9 +216,6 @@ export default function Navbar() {
               <Link href="/cart" onClick={handleCartClick} className="hidden md:block">
                 <div className="relative p-2 rounded-md bg-gradient-to-br from-white to-purple-50 border border-purple-100 cursor-pointer hover:to-purple-100 transition-all duration-200">
                   <FiShoppingCart className="h-6 w-6 text-purple-600" />
-                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
-                  </span>
                 </div>
               </Link>
             </div>
@@ -313,11 +273,6 @@ export default function Navbar() {
                   <FiHeart className="mr-3 text-red-500" />
                   <span>Wishlist</span>
                 </div>
-                {wishlistCount > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
               </Link>
 
               {/* Cart Link */}
@@ -326,9 +281,6 @@ export default function Navbar() {
                   <FiShoppingCart className="mr-3 text-purple-600" />
                   <span>Cart</span>
                 </div>
-                <span className="bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  0
-                </span>
               </Link>
 
               {/* Logout option - only show when logged in */}

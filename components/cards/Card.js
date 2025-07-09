@@ -3,10 +3,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { FiStar, FiHeart, FiShoppingCart } from "react-icons/fi";
+ 
 
 export default function CardList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+   
 
   useEffect(() => {
     async function fetchProducts() {
