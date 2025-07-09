@@ -68,20 +68,22 @@ export default function Navbar() {
       if (res.ok) {
         setIsLoggedIn(false);
         setMobileMenuOpen(false);
-        toast.success("Logged out successfully");
+        // toast.success("Logged out successfully");
+        alert("Logged out successfully");
+        // Optionally, you can redirect to home page or login page
         router.push('/');
       }
 
-      toast.success("Logged out successfullyessfully.", { 
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
+      // toast.success("Logged out successfullyessfully.", { 
+      //   position: "top-center",
+      //   autoClose: 2000,
+      //   hideProgressBar: false,
+      //   closeOnClick: true,
+      //   pauseOnHover: true,
+      //   draggable: true,
+      //   progress: undefined,
+      //   theme: "light",
+      // });
 
     } catch (error) {
       console.error('Logout failed:', error);
