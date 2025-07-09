@@ -81,25 +81,25 @@ function generateMockResults(query) {
     {
       id: '1',
       name: 'Wireless Headphones',
-      price: 99.99,
+      price: 9999,
       description: 'Premium wireless headphones with noise cancellation'
     },
     {
       id: '2',
       name: 'Smart Watch',
-      price: 199.99,
+      price: 19999,
       description: 'Latest smart watch with fitness tracking'
     },
     {
       id: '3',
       name: 'Running Shoes',
-      price: 79.99,
+      price: 7999,
       description: 'Comfortable running shoes for all terrains'
     },
     {
       id: '4',
       name: 'Bluetooth Speaker',
-      price: 59.99,
+      price: 5999,
       description: 'Portable speaker with 20h battery life'
     },
   ];

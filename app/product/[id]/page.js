@@ -102,6 +102,11 @@ export default function ProductDetail() {
         setIsLiked(data.liked);
         toast.success(data.message);
       } else {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to add items to wishlist");
+          return;
+        }
         throw new Error(data.message || "Failed to update wishlist");
       }
     } catch (error) {
@@ -179,6 +184,11 @@ export default function ProductDetail() {
       const data = await response.json();
 
       if (!response.ok) {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to add items to cart");
+          return;
+        }
         throw new Error(data.message || "Failed to add to cart");
       }
 
@@ -235,6 +245,11 @@ export default function ProductDetail() {
     const orderData = await orderResponse.json();
 
     if (!orderResponse.ok) {
+      // Handle authentication error specifically
+      if (orderData.message === "No token found") {
+        toast.error("Please sign in to purchase this item");
+        return;
+      }
       throw new Error(orderData.message || "Failed to create order");
     }
 

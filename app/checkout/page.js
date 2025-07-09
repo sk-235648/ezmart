@@ -27,6 +27,12 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to access checkout");
+          setCart({ items: [] });
+          return;
+        }
         throw new Error(data.message || "Failed to load cart");
       }
 
@@ -71,6 +77,11 @@ export default function CheckoutPage() {
       const orderData = await orderResponse.json();
       
       if (!orderResponse.ok) {
+        // Handle authentication error specifically
+        if (orderData.message === "No token found") {
+          toast.error("Please sign in to complete your purchase");
+          return;
+        }
         throw new Error(orderData.message || "Failed to create order");
       }
 

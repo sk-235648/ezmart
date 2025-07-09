@@ -37,6 +37,12 @@ const fetchCart = async () => {
     console.log("🛒 Cart GET response:", data); // ✅ Add this
 
     if (!res.ok) {
+      // Handle authentication error specifically
+      if (data.message === "No token found") {
+        toast.error("Please sign in to view your cart");
+        setCart({ items: [] });
+        return;
+      }
       throw new Error(data.message || "Failed to load cart");
     }
 
@@ -70,6 +76,11 @@ const fetchCart = async () => {
         setCart(data.cart || { items: [] });
         toast.success("Quantity updated");
       } else {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to update your cart");
+          return;
+        }
         throw new Error(data.message || "Update failed");
       }
     } catch (error) {
@@ -95,6 +106,11 @@ const fetchCart = async () => {
         setCart(data.cart || { items: [] });
         toast.success("Item removed");
       } else {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to manage your cart");
+          return;
+        }
         throw new Error(data.message || "Removal failed");
       }
     } catch (error) {
@@ -186,7 +202,7 @@ const fetchCart = async () => {
                   </div>
 
                   <div className="col-span-2 text-center hidden md:block">
-                    ${itemPrice.toFixed(2)}
+                    ₹{itemPrice.toFixed(2)}
                   </div>
 
                   <div className="col-span-2">
@@ -207,7 +223,7 @@ const fetchCart = async () => {
                   </div>
 
                   <div className="col-span-2 text-right font-medium">
-                    ${(itemPrice * itemQuantity).toFixed(2)}
+                    ₹{(itemPrice * itemQuantity).toFixed(2)}
                   </div>
 
                   <div className="col-span-12 flex justify-end mt-2">
@@ -227,7 +243,7 @@ const fetchCart = async () => {
               <span>
                 {cart.items.length} {cart.items.length === 1 ? "Item" : "Items"}
               </span>
-              <span>${calculateTotal().toFixed(2)}</span>
+              <span>₹{calculateTotal().toFixed(2)}</span>
             </div>
           </div>
 
@@ -238,7 +254,7 @@ const fetchCart = async () => {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
 
               <div className="flex justify-between">
@@ -248,7 +264,7 @@ const fetchCart = async () => {
 
               <div className="border-t pt-4 flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+                <span>₹{calculateTotal().toFixed(2)}</span>
               </div>
 
               <button

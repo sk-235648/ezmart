@@ -19,11 +19,18 @@ export default function WishlistPage() {
           credentials: "include" 
         });
         
+        const data = await res.json();
+        
         if (!res.ok) {
-          throw new Error("Failed to fetch wishlist");
+          // Handle authentication error specifically
+          if (data.message === "No token found") {
+            setError("Please sign in to view your wishlist");
+            setWishlist({ products: [] });
+            return;
+          }
+          throw new Error(data.message || "Failed to fetch wishlist");
         }
         
-        const data = await res.json();
         setWishlist(data.wishlist);
       } catch (err) {
         console.error("Error fetching wishlist:", err);
@@ -45,8 +52,15 @@ export default function WishlistPage() {
         credentials: "include"
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to remove from wishlist");
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to manage your wishlist");
+          return;
+        }
+        throw new Error(data.message || "Failed to remove from wishlist");
       }
 
       // Update local state to remove the product
@@ -79,6 +93,11 @@ export default function WishlistPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Handle authentication error specifically
+        if (data.message === "No token found") {
+          toast.error("Please sign in to add items to cart");
+          return;
+        }
         throw new Error(data.message || "Failed to add to cart");
       }
 
