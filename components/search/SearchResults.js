@@ -76,37 +76,4 @@ export default function SearchResults({ query }) {
   );
 }
 
-function generateMockResults(query) {
-  const mockProducts = [
-    {
-      id: '1',
-      name: 'Wireless Headphones',
-      price: 9999,
-      description: 'Premium wireless headphones with noise cancellation'
-    },
-    {
-      id: '2',
-      name: 'Smart Watch',
-      price: 19999,
-      description: 'Latest smart watch with fitness tracking'
-    },
-    {
-      id: '3',
-      name: 'Running Shoes',
-      price: 7999,
-      description: 'Comfortable running shoes for all terrains'
-    },
-    {
-      id: '4',
-      name: 'Bluetooth Speaker',
-      price: 5999,
-      description: 'Portable speaker with 20h battery life'
-    },
-  ];
-
-  return mockProducts.filter(product => 
-    product.name.toLowerCase().includes(query.toLowerCase()) || 
-    product.description.toLowerCase().includes(query.toLowerCase())
-  );
-}
  
